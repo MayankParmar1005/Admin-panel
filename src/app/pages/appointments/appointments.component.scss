@@ -1,1 +1,13 @@
 @use '../shared-pages';
+
+.input-group {
+    .input-group-text {
+        font-size: 0.9rem;
+        padding-right: 0.5rem;
+    }
+
+    .form-control {
+        font-size: 0.9rem;
+        padding-left: 0.25rem;
+    }
+}

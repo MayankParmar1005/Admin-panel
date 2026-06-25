@@ -62,6 +62,21 @@
             </div>
         </div>
     </div>
+    } @empty {
+    <div class="col-12">
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <h4 class="empty-title">No Employees Found</h4>
+            <p class="empty-text">We couldn't find any employees matching your criteria. Try adjusting your search or
+                add
+                a new employee to your team.</p>
+            <button class="btn btn-primary" (click)="showAddModal=true">
+                <i class="bi bi-person-plus-fill me-1"></i> Add New Employee
+            </button>
+        </div>
+    </div>
     }
 </div>
 

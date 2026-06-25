@@ -32,6 +32,10 @@ export class CustomersComponent implements OnInit {
   isMobileTakenMsg: string = '';
   isEditMode = false;
   selectedCustomerId: string | null = null;
+  showAppointmentsModal = false;
+  selectedCustomerAppointments = signal<any[]>([]);
+  isLoadingAppointments = signal<boolean>(false);
+  viewingCustomerName = '';
 
   get activeCount() { return this.all.filter(c => c.status === 'active').length; }
   get topCustomersCount() { return this.all.filter(c => c.visits >= 10).length; }
@@ -109,6 +113,7 @@ export class CustomersComponent implements OnInit {
 
   closeModal(): void {
     this.showAddModal = false;
+    this.showAppointmentsModal = false;
     this.renderer.removeStyle(document.body, 'overflow');
   }
 
@@ -173,6 +178,27 @@ export class CustomersComponent implements OnInit {
         }
       });
     }
+  }
+
+  viewAppointments(customer: CustomerModel): void {
+    this.viewingCustomerName = customer.name;
+    this.selectedCustomerAppointments.set([]);
+    this.isLoadingAppointments.set(true);
+    this.showAppointmentsModal = true;
+    this.renderer.setStyle(document.body, 'overflow', 'hidden');
+
+    this.customerService.getCustomerAppointmentList(customer.id.toString()).subscribe({
+      next: (res: any) => {
+        this.selectedCustomerAppointments.set(res);
+        this.isLoadingAppointments.set(false);
+      },
+      error: (err: any) => {
+        console.error('Error fetching customer appointments:', err);
+        this.toastService.error('Failed to fetch appointment history');
+        this.isLoadingAppointments.set(false);
+        this.closeModal();
+      }
+    });
   }
 
 }

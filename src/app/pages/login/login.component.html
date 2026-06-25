@@ -32,11 +32,18 @@
                     <div class="input-group-custom">
                         <i class="bi bi-envelope input-icon"></i>
                         <input type="email" class="form-control" formControlName="email"
-                            placeholder="admin@salon.com"  />
+                            placeholder="Enter email address"  />
                     </div>
-                    <!-- @if (submitted && !email) {
+                    <!-- @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
                     <div class="invalid-feedback d-block">Email is required.</div>
                     } -->
+
+                    @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                        <div class="invalid-feedback d-block">
+                        @if (loginForm.get('email')?.errors?.['required']) { Email is required }
+                        @if (loginForm.get('email')?.errors?.['email']) { Enter a valid email }
+                        </div>
+                    }
                 </div>
 
                 <div class="mb-3">
@@ -44,7 +51,7 @@
                     <div class="input-group-custom">
                         <i class="bi bi-lock input-icon"></i>
                         <input  [type]="showPassword ? 'text' : 'password'" class="form-control"
-                             placeholder="••••••••" formControlName="password" />
+                             placeholder="Enter password" formControlName="password" />
                         <button type="button" class="toggle-pass" (click)="showPassword = !showPassword">
                             <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
                         </button>
@@ -73,10 +80,10 @@
                 </button>
             </form>
 
-            <div class="login-hint">
+            <!-- <div class="login-hint">
                 <i class="bi bi-info-circle me-1"></i>
                 Demo: <strong>admin@salon.com</strong> / <strong>admin123</strong>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

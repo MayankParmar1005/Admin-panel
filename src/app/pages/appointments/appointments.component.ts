@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
 import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 import { EmployeeModel, Service, Appointment } from '../../models';
 
@@ -15,7 +16,7 @@ import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, ConfirmModalComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, ConfirmModalComponent, BsDatepickerModule],
   templateUrl: './appointments.component.html',
   styleUrls: ['./appointments.component.scss']
 })
