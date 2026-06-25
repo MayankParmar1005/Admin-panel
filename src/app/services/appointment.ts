@@ -8,8 +8,8 @@ export class Appointment {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:3000/api/appointments';  // local environment
-  // private apiUrl = 'https://employeebackend-production.up.railway.app/api/appointments'; // live environment
+  // private apiUrl = 'http://localhost:3000/api/appointments';  // local environment
+  private apiUrl = 'https://employeebackend-production.up.railway.app/api/appointments'; // live environment
 
   createAppointment(data: any) {
     return this.http.post(this.apiUrl, data);

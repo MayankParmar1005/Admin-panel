@@ -8,8 +8,8 @@ export class Customer {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:3000/api/customers';  // local environment
-  // private apiUrl = 'https://employeebackend-production.up.railway.app/api/employees'; // live environment
+  // private apiUrl = 'http://localhost:3000/api/customers';  // local environment
+  private apiUrl = 'https://employeebackend-production.up.railway.app/api/customers'; // live environment
 
   getCustomers() {
     return this.http.get(this.apiUrl);

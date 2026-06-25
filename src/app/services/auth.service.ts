@@ -8,9 +8,10 @@ export class AuthService {
     private http = inject(HttpClient);
     private router = inject(Router);
 
-    private apiUrl = 'http://localhost:3000/api/employees';  // local environment
-    private authUrl = 'http://localhost:3000/api/auth';  // local environment
-    // private apiUrl = 'https://employeebackend-production.up.railway.app/api/employees'; // live environment
+    // private apiUrl = 'http://localhost:3000/api/employees';  // local environment
+    // private authUrl = 'http://localhost:3000/api/auth';  // local environment
+    private apiUrl = 'https://employeebackend-production.up.railway.app/api/employees'; // live environment
+    private authUrl = 'https://employeebackend-production.up.railway.app/api/auth'; // live environment
 
     private readonly TOKEN_KEY = 'token';
     private readonly USER_KEY = 'salon_user';

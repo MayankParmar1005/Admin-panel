@@ -8,9 +8,9 @@ export class Employee {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:3000/api/employees';  // local environment
-  private authUrl = 'http://localhost:3000/api/auth';  // local environment
-  // private apiUrl = 'https://employeebackend-production.up.railway.app/api/employees'; // live environment
+  // private apiUrl = 'http://localhost:3000/api/employees';  // local environment
+  // private authUrl = 'http://localhost:3000/api/auth';  // local environment
+  private apiUrl = 'https://employeebackend-production.up.railway.app/api/employees'; // live environment
 
   getEmployees() {
     return this.http.get(this.apiUrl);
