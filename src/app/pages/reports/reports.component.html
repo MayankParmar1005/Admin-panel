@@ -1,0 +1,132 @@
+<app-breadcrumb [items]="[{label:'Reports'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Reports & Analytics</h4>
+        <p class="page-subheading">Track your salon business performance</p>
+    </div>
+    <button class="btn btn-outline-primary"><i class="bi bi-download me-1"></i> Export Report</button>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-icon"><i class="bi bi-trophy-fill"></i></div>
+            <div class="kpi-value">₹9.12L</div>
+            <div class="kpi-label">Annual Revenue</div>
+            <div class="kpi-change positive"><i class="bi bi-arrow-up-right"></i> +18.4% YoY</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-green">
+            <div class="kpi-icon"><i class="bi bi-calendar-check-fill"></i></div>
+            <div class="kpi-value">1,248</div>
+            <div class="kpi-label">Total Appointments</div>
+            <div class="kpi-change positive"><i class="bi bi-arrow-up-right"></i> +12.1%</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-purple">
+            <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="kpi-value">₹731</div>
+            <div class="kpi-label">Avg. Transaction</div>
+            <div class="kpi-change positive"><i class="bi bi-arrow-up-right"></i> +5.3%</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-orange">
+            <div class="kpi-icon"><i class="bi bi-heart-fill"></i></div>
+            <div class="kpi-value">87%</div>
+            <div class="kpi-label">Customer Retention</div>
+            <div class="kpi-change positive"><i class="bi bi-arrow-up-right"></i> +3.2%</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Revenue Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="content-card">
+            <div class="section-title"><i class="bi bi-bar-chart-fill"></i>Monthly Revenue — 2026</div>
+            <div class="chart-bar-wrap" style="height:200px">
+                @for (d of revenueData; track d.month) {
+                <div class="chart-bar-col">
+                    <span class="chart-amount">₹{{ (d.revenue/1000).toFixed(0) }}k</span>
+                    <div class="chart-bar" [style.height.%]="getBarHeight(d.revenue)"></div>
+                    <span class="chart-label">{{ d.month }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Services -->
+    <div class="col-12 col-lg-4">
+        <div class="content-card">
+            <div class="section-title"><i class="bi bi-stars"></i>Top Services</div>
+            <div class="top-service-list">
+                @for (s of topServices; track s.name) {
+                <div class="top-svc-item">
+                    <div class="top-svc-info">
+                        <div class="fw-semibold" style="font-size:.87rem">{{ s.name }}</div>
+                        <div class="progress mt-1" style="height:5px;border-radius:10px">
+                            <div class="progress-bar bg-primary" [style.width.%]="s.pct"></div>
+                        </div>
+                    </div>
+                    <div class="top-svc-count">{{ s.pct }}%</div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Performance -->
+<div class="content-card">
+    <div class="section-title"><i class="bi bi-person-badge-fill"></i>Staff Performance</div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Total Appointments</th>
+                    <th>Revenue Generated</th>
+                    <th>Avg Rating</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (s of staffPerf; track s.name) {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm" [style.background]="getColor(s.name)">{{ getInitials(s.name) }}</div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:.87rem">{{ s.name }}</div>
+                                <small class="text-muted">{{ s.role }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="fw-bold">{{ s.appts }}</td>
+                    <td class="fw-semibold text-success">₹{{ s.revenue | number }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <i class="bi bi-star-fill text-warning" style="font-size:.75rem"></i>
+                            <span class="fw-bold">{{ s.rating }}</span>
+                        </div>
+                    </td>
+                    <td style="min-width:120px">
+                        <div class="progress" style="height:7px;border-radius:10px">
+                            <div class="progress-bar"
+                                [class]="s.pct >= 80 ? 'bg-success' : s.pct >= 60 ? 'bg-primary' : 'bg-warning'"
+                                [style.width.%]="s.pct"></div>
+                        </div>
+                        <small class="text-muted">{{ s.pct }}%</small>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

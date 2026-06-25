@@ -1,0 +1,112 @@
+<app-breadcrumb [items]="[{label:'Settings'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Settings</h4>
+        <p class="page-subheading">Configure your salon preferences</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column -->
+    <div class="col-12 col-lg-4">
+        <!-- Profile Card -->
+        <div class="content-card text-center mb-4">
+            <div class="settings-avatar mx-auto mb-3">AU</div>
+            <h5 class="fw-bold mb-1">Admin User</h5>
+            <p class="text-muted mb-3">Administrator</p>
+            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-camera me-1"></i>Change Photo</button>
+        </div>
+
+        <!-- Salon Info -->
+        <div class="content-card">
+            <div class="section-title"><i class="bi bi-building"></i>Salon Info</div>
+            <div class="info-list">
+                <div class="info-item"><i class="bi bi-scissors text-primary"></i><span>LuxeSalon</span></div>
+                <div class="info-item"><i class="bi bi-geo-alt text-danger"></i><span>Mumbai, Maharashtra</span></div>
+                <div class="info-item"><i class="bi bi-telephone text-success"></i><span>+91 98765 43210</span></div>
+                <div class="info-item"><i class="bi bi-clock text-warning"></i><span>9:00 AM — 8:00 PM</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-12 col-lg-8">
+        <!-- General Settings -->
+        <div class="content-card mb-4">
+            <div class="section-title"><i class="bi bi-gear-fill"></i>General Settings</div>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Salon Name</label>
+                    <input class="form-control" value="LuxeSalon">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Owner Name</label>
+                    <input class="form-control" value="Admin User">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" value="admin@salon.com" type="email">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Phone</label>
+                    <input class="form-control" value="+91 98765 43210">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" rows="2">123 Beauty Lane, Bandra West, Mumbai — 400050</textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Opening Time</label>
+                    <input class="form-control" type="time" value="09:00">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Closing Time</label>
+                    <input class="form-control" type="time" value="20:00">
+                </div>
+            </div>
+            <div class="mt-3 text-end"><button class="btn btn-primary"><i class="bi bi-save me-1"></i>Save
+                    Changes</button></div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="content-card mb-4">
+            <div class="section-title"><i class="bi bi-bell-fill"></i>Notifications</div>
+            <div class="toggle-list">
+                @for (item of notifSettings; track item.label) {
+                <div class="toggle-item">
+                    <div>
+                        <div class="fw-semibold" style="font-size:.88rem">{{ item.label }}</div>
+                        <small class="text-muted">{{ item.desc }}</small>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="item.enabled"
+                            [id]="'notif_'+item.label">
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="content-card">
+            <div class="section-title"><i class="bi bi-shield-lock-fill"></i>Change Password</div>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••">
+                </div>
+            </div>
+            <div class="mt-3 text-end"><button class="btn btn-primary"><i class="bi bi-lock me-1"></i>Update
+                    Password</button></div>
+        </div>
+    </div>
+</div>

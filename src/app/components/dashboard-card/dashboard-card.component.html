@@ -1,0 +1,15 @@
+<div class="dash-card" [class]="'dash-card--' + color">
+    <div class="dash-card-body">
+        <div class="dash-card-info">
+            <p class="dash-card-label">{{ label }}</p>
+            <h3 class="dash-card-value">{{ prefix }}{{ value | number }}{{ suffix }}</h3>
+            <div class="dash-card-change" [class.positive]="change >= 0" [class.negative]="change < 0">
+                <i class="bi" [class.bi-arrow-up-right]="change >= 0" [class.bi-arrow-down-right]="change < 0"></i>
+                <span>{{ change >= 0 ? '+' : '' }}{{ change }}% vs last month</span>
+            </div>
+        </div>
+        <div class="dash-card-icon">
+            <i class="bi {{ icon }}"></i>
+        </div>
+    </div>
+</div>

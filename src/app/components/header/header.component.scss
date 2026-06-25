@@ -1,0 +1,260 @@
+$header-height: 68px;
+
+.app-header {
+    height: $header-height;
+    background: #ffffff;
+    border-bottom: 1px solid #e8edf3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 16px rgba(30, 41, 59, .06);
+    gap: 1rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.header-action {
+    position: relative;
+    z-index: 1060;
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1.5px solid #e8edf3;
+    background: #f8fafc;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+
+    &:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #3b82f6;
+    }
+}
+
+.sidebar-toggle {
+    border: none;
+    background: transparent;
+}
+
+.badge-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+// Profile Button
+.profile-btn {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: .4rem .75rem;
+    border-radius: 12px;
+    transition: background .2s;
+
+    &:hover {
+        background: #f1f5f9;
+    }
+}
+
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: .84rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+// Dropdown Cards
+.dropdown-card {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(30, 41, 59, .15);
+    z-index: 1100;
+    min-width: 280px;
+    overflow: hidden;
+    animation: dropdownFadeIn .2s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .88rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dropdown-footer {
+    padding: .75rem 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+
+    a {
+        font-size: .82rem;
+        color: #3b82f6;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: .25rem 0;
+}
+
+.dropdown-action {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1.25rem;
+    color: #475569;
+    font-size: .87rem;
+    text-decoration: none;
+    transition: background .15s;
+    border: none;
+    background: transparent;
+    cursor: pointer !important;
+
+    &:hover {
+        background: #f8fafc;
+        color: #1e293b;
+    }
+
+    i {
+        font-size: 1rem;
+        width: 18px;
+    }
+}
+
+// Notification Dropdown
+.notif-dropdown {
+    min-width: 320px;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .85rem;
+    padding: .85rem 1.25rem;
+    transition: background .15s;
+
+    &:hover {
+        background: #f8fafc;
+    }
+
+    &.unread {
+        background: #f0f9ff;
+    }
+}
+
+.notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.notif-text {
+    font-size: .84rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.bg-primary-soft {
+    background: #eff6ff;
+}
+
+.bg-success-soft {
+    background: #f0fdf4;
+}
+
+.bg-warning-soft {
+    background: #fffbeb;
+}
+
+.backdrop-clear {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: transparent;
+}
+
+.profile-dropdown {
+    min-width: 220px;
+}

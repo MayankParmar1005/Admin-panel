@@ -1,0 +1,88 @@
+<app-breadcrumb [items]="[{label:'Billing'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Billing & Invoices</h4>
+        <p class="page-subheading">Track payments and invoices</p>
+    </div>
+    <button class="btn btn-primary"><i class="bi bi-receipt me-1"></i> New Invoice</button>
+</div>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-cash-coin text-success"></i>
+            <div class="mini-stat-value">₹{{ totalPaid | number }}</div>
+            <div class="mini-stat-label">Total Collected</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-hourglass-split text-warning"></i>
+            <div class="mini-stat-value">₹{{ totalPending | number }}</div>
+            <div class="mini-stat-label">Pending</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-receipt-cutoff text-primary"></i>
+            <div class="mini-stat-value">{{ invoices.length }}</div>
+            <div class="mini-stat-label">Invoices</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-arrow-return-left text-danger"></i>
+            <div class="mini-stat-value">{{ refundCount }}</div>
+            <div class="mini-stat-label">Refunds</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Customer</th>
+                    <th>Services</th>
+                    <th>Subtotal</th>
+                    <th>Tax (18%)</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (inv of invoices; track inv.id) {
+                <tr>
+                    <td class="fw-bold text-primary">#{{ inv.id }}</td>
+                    <td style="font-size:.86rem">{{ inv.customerName }}</td>
+                    <td style="font-size:.82rem">{{ inv.services.join(', ') }}</td>
+                    <td>₹{{ inv.subtotal | number }}</td>
+                    <td>₹{{ inv.tax | number }}</td>
+                    <td class="fw-bold">₹{{ inv.total | number }}</td>
+                    <td>
+                        <span class="payment-badge {{ inv.paymentMethod }}">
+                            <i class="bi" [class.bi-cash]="inv.paymentMethod==='cash'"
+                                [class.bi-credit-card]="inv.paymentMethod==='card'"
+                                [class.bi-phone]="inv.paymentMethod==='upi'"></i>
+                            {{ inv.paymentMethod | uppercase }}
+                        </span>
+                    </td>
+                    <td style="font-size:.84rem">{{ inv.paidAt }}</td>
+                    <td><span class="status-badge {{ inv.status }}">{{ inv.status | titlecase }}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Print"><i
+                                class="bi bi-printer-fill"></i></button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

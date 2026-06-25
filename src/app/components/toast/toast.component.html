@@ -1,0 +1,23 @@
+<div class="toast-container">
+    @for (toast of toastService.activeToasts(); track toast.id) {
+    <div class="custom-toast" [class]="toast.type" @toastAnimation>
+        <div class="toast-icon">
+            @if (toast.type === 'success') {
+            <i class="bi bi-check-circle-fill"></i>
+            } @else if (toast.type === 'error') {
+            <i class="bi bi-exclamation-circle-fill"></i>
+            } @else if (toast.type === 'warning') {
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            } @else {
+            <i class="bi bi-info-circle-fill"></i>
+            }
+        </div>
+        <div class="toast-content">
+            {{ toast.message }}
+        </div>
+        <button class="btn-close-toast" (click)="toastService.remove(toast.id)">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    }
+</div>

@@ -1,0 +1,164 @@
+<app-breadcrumb [items]="[{label: 'Dashboard'}]"></app-breadcrumb>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <app-dashboard-card label="Today's Appointments" [value]="stats.todayAppointments" icon="bi-calendar-check-fill"
+            color="blue" [change]="stats.appointmentsChange"></app-dashboard-card>
+    </div>
+    <div class="col-6 col-lg-3">
+        <app-dashboard-card label="Today's Revenue" [value]="stats.todayRevenue" icon="bi-currency-rupee" color="green"
+            [change]="stats.revenueChange" prefix="₹"></app-dashboard-card>
+    </div>
+    <div class="col-6 col-lg-3">
+        <app-dashboard-card label="Total Customers" [value]="stats.totalCustomers" icon="bi-people-fill" color="purple"
+            [change]="stats.customersChange"></app-dashboard-card>
+    </div>
+    <div class="col-6 col-lg-3">
+        <app-dashboard-card label="Employees" [value]="stats.totalEmployees" icon="bi-person-badge-fill" color="orange"
+            [change]="stats.employeesChange"></app-dashboard-card>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Revenue Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="content-card h-100">
+            <div class="section-title">
+                <i class="bi bi-bar-chart-fill"></i>
+                Monthly Revenue Overview
+                <span class="ms-auto badge bg-primary-subtle text-primary rounded-pill fw-semibold"
+                    style="font-size:.75rem">2026</span>
+            </div>
+            <div class="revenue-chart-area">
+                <div class="chart-bar-wrap">
+                    @for (d of revenueData; track d.month) {
+                    <div class="chart-bar-col">
+                        <span class="chart-amount">₹{{ (d.revenue / 1000).toFixed(0) }}k</span>
+                        <div class="chart-bar" [style.height.%]="getBarHeight(d.revenue)"></div>
+                        <span class="chart-label">{{ d.month }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="col-12 col-lg-4">
+        <div class="content-card h-100">
+            <div class="section-title"><i class="bi bi-activity"></i> Today's Overview</div>
+            <div class="today-stat-list">
+                <div class="today-stat-item">
+                    <div class="today-stat-icon bg-blue-soft"><i class="bi bi-calendar-check text-primary"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="today-stat-label">Scheduled</div>
+                        <div class="today-stat-bar">
+                            <div class="today-stat-fill" style="width:75%;background:#3b82f6"></div>
+                        </div>
+                    </div>
+                    <span class="today-stat-count text-primary">9</span>
+                </div>
+                <div class="today-stat-item">
+                    <div class="today-stat-icon bg-green-soft"><i class="bi bi-check-circle text-success"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="today-stat-label">Completed</div>
+                        <div class="today-stat-bar">
+                            <div class="today-stat-fill" style="width:25%;background:#10b981"></div>
+                        </div>
+                    </div>
+                    <span class="today-stat-count text-success">3</span>
+                </div>
+                <div class="today-stat-item">
+                    <div class="today-stat-icon bg-red-soft"><i class="bi bi-x-circle text-danger"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="today-stat-label">Cancelled</div>
+                        <div class="today-stat-bar">
+                            <div class="today-stat-fill" style="width:8%;background:#ef4444"></div>
+                        </div>
+                    </div>
+                    <span class="today-stat-count text-danger">1</span>
+                </div>
+                <div class="today-stat-item">
+                    <div class="today-stat-icon bg-orange-soft"><i class="bi bi-cash-stack text-warning"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="today-stat-label">Revenue Collected</div>
+                        <div class="today-stat-bar">
+                            <div class="today-stat-fill" style="width:60%;background:#f59e0b"></div>
+                        </div>
+                    </div>
+                    <span class="today-stat-count text-warning">₹5.1k</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Appointments -->
+    <div class="col-12 col-lg-7">
+        <div class="content-card">
+            <div class="section-title">
+                <i class="bi bi-calendar-event-fill"></i>
+                Recent Appointments
+                <a routerLink="/appointments" class="ms-auto btn btn-sm btn-outline-primary rounded-pill px-3">View
+                    All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (apt of recentAppointments; track apt.id) {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- <div class="avatar-sm" [style.background]="getAvatar(apt.customerName)">
+                                        {{ getInitials(apt.customerName) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" style="font-size:.87rem">{{ apt.customerName }}</div>
+                                        <small class="text-muted">{{ apt.employeeName }}</small>
+                                    </div> -->
+                                </div>
+                            </td>
+                            <!-- <td><span style="font-size:.85rem">{{ apt.serviceName }}</span></td>
+                            <td><span style="font-size:.85rem">{{ apt.time }}</span></td>
+                            <td><span class="status-badge {{ apt.status }}">{{ apt.status | titlecase }}</span></td> -->
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Customers -->
+    <div class="col-12 col-lg-5">
+        <div class="content-card">
+            <div class="section-title">
+                <i class="bi bi-people-fill"></i>
+                Recent Customers
+                <a routerLink="/customers" class="ms-auto btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+            </div>
+            <div class="recent-customers-list">
+                @for (c of recentCustomers; track c.id) {
+                <div class="recent-cust-item">
+                    <div class="avatar-sm" [style.background]="getAvatar(c.name)">{{ getInitials(c.name) }}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold" style="font-size:.87rem">{{ c.name }}</div>
+                        <!-- <small class="text-muted">{{ c.totalVisits }} visits · ₹{{ c.totalSpent | number }}</small> -->
+                    </div>
+                    <span class="status-badge {{ c.status }}">{{ c.status | titlecase }}</span>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

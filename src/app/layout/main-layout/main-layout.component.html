@@ -1,0 +1,15 @@
+<div class="app-wrapper" [class.sidebar-collapsed]="sidebarCollapsed()" [class.mobile-open]="mobileOpen()">
+    <app-sidebar [isCollapsed]="sidebarCollapsed()" [mobileOpen]="mobileOpen()"
+        (collapsedChange)="sidebarCollapsed.set($event)" (mobileClose)="mobileOpen.set(false)"></app-sidebar>
+
+    <div class="main-content-wrap">
+        <app-header (sidebarToggle)="onSidebarToggle()"></app-header>
+
+        <main class="main-content">
+            <router-outlet></router-outlet>
+        </main>
+
+        <app-footer></app-footer>
+    </div>
+    <app-toast></app-toast>
+</div>

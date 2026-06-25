@@ -1,0 +1,259 @@
+<app-breadcrumb [items]="[{label:'Employees'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Employees</h4>
+        <p class="page-subheading">Manage your salon team members</p>
+    </div>
+    <button class="btn btn-primary" (click)="showAddModal=true"><i class="bi bi-person-plus-fill me-1"></i> Add
+        Employee</button>
+</div>
+
+<!-- Search -->
+<div class="content-card mb-3">
+    <div class="row g-2">
+        <div class="col-12 col-md-5">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input class="form-control" placeholder="Search employees..." [(ngModel)]="searchQuery"
+                    (input)="applyFilter()">
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="applyFilter()">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="on-leave">On Leave</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Cards Grid -->
+<div class="row g-3">
+    @for (emp of filtered(); track emp.id) {
+    <div class="col-12 col-sm-6 col-xl-4">
+        <div class="emp-card">
+            <div class="emp-card-header">
+                <div class="emp-avatar" [style.background]="getColor(emp.name)">{{ getInitials(emp.name) }}</div>
+                <span class="status-badge {{ emp.status }}">{{ emp.status | titlecase }}</span>
+            </div>
+            <div class="emp-card-body">
+                <h5 class="emp-name">{{ emp.name }}</h5>
+                <p class="emp-role"><i class="bi bi-briefcase-fill text-primary me-1"></i>{{ emp.role }}</p>
+                <p class="emp-spec text-muted"><i class="bi bi-stars text-warning me-1"></i>{{ emp.specialization }}</p>
+                <div class="emp-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-telephone text-muted"></i>
+                        <span>{{ emp.phone }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-calendar3 text-muted"></i>
+                        <span>Since {{ emp.join_date | date: 'dd/MM/yy' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="emp-card-footer">
+                <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="onView(emp)"><i
+                        class="bi bi-eye me-1"></i>View</button>
+                <button class="btn btn-sm btn-outline-secondary flex-grow-1" (click)="onEdit(emp)"><i
+                        class="bi bi-pencil me-1"></i>Edit</button>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- View Profile Modal -->
+@if (showViewModal && viewEmployee) {
+<div class="modal-backdrop-custom" (click)="closeModal()"></div>
+<div class="modal-custom">
+    <div class="modal-custom-content profile-modal-content">
+        <div class="modal-custom-header">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-person-badge me-2 text-primary"></i>Employee Profile</h5>
+            <button class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-custom-body">
+            <div class="profile-layout">
+                <!-- Sidebar: Visual Branding -->
+                <div class="profile-sidebar">
+                    <div class="profile-avatar" [style.background]="getColor(viewEmployee.name)">
+                        {{ getInitials(viewEmployee.name) }}
+                    </div>
+                    <h4 class="profile-name">{{ viewEmployee.name }}</h4>
+                    <div class="profile-role-badge">{{ viewEmployee.role }}</div>
+
+                    <div class="stars-total d-none d-md-block">
+                        <div class="stars justify-content-center mb-1">
+                            @for (s of getStars(viewEmployee.rating); track $index) {
+                            <i class="bi bi-star-fill text-warning"></i>
+                            }
+                        </div>
+                        <span class="rating-value">{{ viewEmployee.rating }} / 5.0</span>
+                    </div>
+                </div>
+
+                <!-- Main Content: Detailed Info -->
+                <div class="profile-main">
+                    <div class="profile-info-grid">
+                        <div class="info-box">
+                            <div class="info-label"><i class="bi bi-envelope"></i>Email</div>
+                            <div class="info-value"><a [href]="'mailto:' + viewEmployee.email">{{ viewEmployee.email
+                                    }}</a></div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label"><i class="bi bi-telephone"></i>Phone</div>
+                            <div class="info-value"><a [href]="'tel:' + viewEmployee.phone">{{ viewEmployee.phone }}</a>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label"><i class="bi bi-stars"></i>Specialization</div>
+                            <div class="info-value">{{ viewEmployee.specialization || 'N/A' }}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label"><i class="bi bi-calendar-check"></i>Joined Since</div>
+                            <div class="info-value">{{ viewEmployee.join_date | date: 'dd/MM/yy' }}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label"><i class="bi bi-activity"></i>Status</div>
+                            <div class="info-value">
+                                <span class="status-badge {{ viewEmployee.status }}">{{ viewEmployee.status | titlecase
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="info-box d-md-none">
+                            <div class="info-label"><i class="bi bi-star"></i>Rating</div>
+                            <div class="info-value">{{ viewEmployee.rating }} / 5.0</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-rating-card d-none d-md-flex">
+                        <div class="rating-label">
+                            <i class="bi bi-award-fill"></i>
+                            Performance Summary
+                        </div>
+                        <div class="stars-total">
+                            <div class="stars">
+                                @for (s of getStars(viewEmployee.rating); track $index) {
+                                <i class="bi bi-star-fill"></i>
+                                }
+                            </div>
+                            <div class="rating-value">Excellent Performance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-custom-footer justify-content-center">
+            <button class="btn btn-primary" (click)="onEdit(viewEmployee)">
+                <i class="bi bi-pencil me-1"></i>Edit Profile
+            </button>
+            <button class="btn btn-light" (click)="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Add/Edit Modal -->
+@if (showAddModal) {
+<div class="modal-backdrop-custom" (click)="closeModal()"></div>
+<div class="modal-custom">
+    <div class="modal-custom-content">
+        <div class="modal-custom-header">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-person-plus-fill me-2 text-primary"></i>{{ isEditMode ? 'Edit' : 'Add' }} Employee
+            </h5>
+            <button class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <form [formGroup]="addEmployeeForm" (ngSubmit)="onSubmit()">
+            <div class="modal-custom-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" formControlName="name" placeholder="Enter name"
+                            [class.is-invalid]="addEmployeeForm.get('name')?.invalid && addEmployeeForm.get('name')?.touched">
+                        @if (addEmployeeForm.get('name')?.invalid && addEmployeeForm.get('name')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (addEmployeeForm.get('name')?.errors?.['required']) { Name is required }
+                            @if (addEmployeeForm.get('name')?.errors?.['maxlength']) { Max 30 characters allowed }
+                        </div>
+                        }
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" formControlName="email" placeholder="Enter email"
+                            [class.is-invalid]="addEmployeeForm.get('email')?.invalid && addEmployeeForm.get('email')?.touched">
+                        @if (addEmployeeForm.get('email')?.invalid && addEmployeeForm.get('email')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (addEmployeeForm.get('email')?.errors?.['required']) { Email is required }
+                            @if (addEmployeeForm.get('email')?.errors?.['email']) { Enter a valid email }
+                        </div>
+                        }
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" formControlName="phone" placeholder="10-digit number"
+                            [class.is-invalid]="addEmployeeForm.get('phone')?.invalid && addEmployeeForm.get('phone')?.touched">
+                        @if (addEmployeeForm.get('phone')?.invalid && addEmployeeForm.get('phone')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (addEmployeeForm.get('phone')?.errors?.['required']) { Phone is required }
+                            @if (addEmployeeForm.get('phone')?.errors?.['pattern']) { Enter a valid 10-digit number }
+                        </div>
+                        }
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" formControlName="role"
+                            [class.is-invalid]="addEmployeeForm.get('role')?.invalid && addEmployeeForm.get('role')?.touched">
+                            <option value="">Select Role</option>
+                            <option value="Senior Stylist">Senior Stylist</option>
+                            <option value="Stylist">Stylist</option>
+                            <option value="Junior Stylist">Junior Stylist</option>
+                            <option value="Beautician">Beautician</option>
+                            <option value="Senior Beautician">Senior Beautician</option>
+                            <option value="Nail Artist">Nail Artist</option>
+                            <option value="Massage Therapist">Massage Therapist</option>
+                            <option value="Receptionist">Receptionist</option>
+                        </select>
+                        @if (addEmployeeForm.get('role')?.invalid && addEmployeeForm.get('role')?.touched) {
+                        <div class="invalid-feedback">Role is required</div>
+                        }
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Specialization</label>
+                        <input type="text" class="form-control" formControlName="specialization"
+                            placeholder="e.g. Hair Coloring">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Join Date</label>
+                        <input type="date" class="form-control" formControlName="join_date"
+                            [class.is-invalid]="addEmployeeForm.get('join_date')?.invalid && addEmployeeForm.get('join_date')?.touched">
+                        @if (addEmployeeForm.get('join_date')?.invalid && addEmployeeForm.get('join_date')?.touched) {
+                        <div class="invalid-feedback">Join date is required</div>
+                        }
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" formControlName="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="on-leave">On Leave</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Rating</label>
+                        <input type="number" step="0.1" min="0" max="5" class="form-control" formControlName="rating">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-custom-footer">
+                <button type="button" class="btn btn-light" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>
+                    {{ isEditMode ? 'Update' : 'Save' }} Employee
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}

@@ -1,0 +1,19 @@
+<div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-icon" [class.danger]="isDanger">
+            @if (isDanger) {
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            } @else {
+            <i class="bi bi-question-circle-fill"></i>
+            }
+        </div>
+
+        <h3 class="modal-title">{{ title }}</h3>
+        <p class="modal-message">{{ message }}</p>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" (click)="onCancel()">{{ cancelText }}</button>
+            <button class="btn-confirm" [class.btn-danger]="isDanger" (click)="onConfirm()">{{ confirmText }}</button>
+        </div>
+    </div>
+</div>

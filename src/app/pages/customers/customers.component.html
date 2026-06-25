@@ -1,0 +1,176 @@
+<app-breadcrumb [items]="[{label:'Customers'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Customers</h4>
+        <p class="page-subheading">Manage your customer database</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()"><i class="bi bi-person-plus-fill me-1"></i> Add
+        Customer</button>
+</div>
+
+<!-- Stats mini cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-people-fill text-primary"></i>
+            <div class="mini-stat-value">{{ all.length }}</div>
+            <div class="mini-stat-label">Total</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-person-check-fill text-success"></i>
+            <div class="mini-stat-value">{{ activeCount }}</div>
+            <div class="mini-stat-label">Active</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-star-fill text-warning"></i>
+            <div class="mini-stat-value">{{ topCustomersCount }}</div>
+            <div class="mini-stat-label">Top (10+ visits)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mini-stat-card">
+            <i class="bi bi-currency-rupee text-purple"></i>
+            <div class="mini-stat-value">₹{{ totalRevenue | number }}</div>
+            <div class="mini-stat-label">Lifetime Revenue</div>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="content-card mb-3">
+    <div class="row g-2">
+        <div class="col-12 col-md-5">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input class="form-control" placeholder="Search customers..." [(ngModel)]="searchQuery"
+                    (input)="applyFilter()">
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="applyFilter()">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Join Date</th>
+                    <th>Visits</th>
+                    <th>Total Spent</th>
+                    <!-- <th>Status</th> -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (c of filtered(); track c.id) {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm" [style.background]="getColor(c.name)">{{ getInitials(c.name) }}</div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:.87rem">{{ c.name }}</div>
+                                <small class="text-muted">{{ c.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.86rem">{{ c.mobile }}</td>
+                    <td style="font-size:.86rem">{{ c.created_at | date: 'dd/MM/yy' }}</td>
+                    <td><span class="fw-bold">{{ c.visits }}</span></td>
+                    <td class="fw-semibold">₹{{ c.total_spent | number:'1.2-2' }}</td>
+                    <!-- <td><span class="status-badge {{ c.status }}">{{ c.status | titlecase }}</span></td> -->
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-sm btn-icon-action btn-outline-primary" title="View"><i
+                                    class="bi bi-eye-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-secondary" title="Edit"
+                                (click)="openEditModal(c.id)"><i class="bi bi-pencil-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Delete"
+                                (click)="onDelete(c.id)"><i class="bi bi-trash-fill"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Customer Modal -->
+@if (showAddModal) {
+<div class="modal-backdrop-custom" (click)="closeModal()"></div>
+<div class="modal-custom" (click)="closeModal()">
+    <div class="modal-custom-content" (click)="$event.stopPropagation()">
+        <div class="modal-custom-header">
+            <h5 class="mb-0 fw-bold">
+                <i class="me-2 text-primary" [class]="isEditMode ? 'bi bi-pencil-fill' : 'bi bi-person-plus-fill'"></i>
+                {{ isEditMode ? 'Edit Customer' : 'Add New Customer' }}
+            </h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+
+        <form [formGroup]="addCustomerForm" (ngSubmit)="onSubmit()">
+            <div class="modal-custom-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="name" placeholder="Enter customer name"
+                            [class.is-invalid]="addCustomerForm.get('name')?.touched && addCustomerForm.get('name')?.invalid">
+                        @if (addCustomerForm.get('name')?.touched && addCustomerForm.get('name')?.invalid) {
+                        <div class="invalid-feedback">Name is required (max 50 chars)</div>
+                        }
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" formControlName="email"
+                            placeholder="customer@example.com"
+                            [class.is-invalid]="addCustomerForm.get('email')?.touched && addCustomerForm.get('email')?.invalid">
+                        @if (addCustomerForm.get('email')?.touched && addCustomerForm.get('email')?.invalid) {
+                        <div class="invalid-feedback">Valid email is required</div>
+                        }
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">+91</span>
+                            <input type="text" class="form-control" formControlName="mobile" placeholder="9876543210"
+                                (input)="isMobileTaken.set(false)" (blur)="checkMobileAvailability()"
+                                [class.is-invalid]="(addCustomerForm.get('mobile')?.touched && addCustomerForm.get('mobile')?.invalid) || isMobileTaken()">
+                        </div>
+                        @if (addCustomerForm.get('mobile')?.touched && addCustomerForm.get('mobile')?.invalid) {
+                        <div class="invalid-feedback" style="display:block">10-digit mobile number is required</div>
+                        }
+                        @if (isMobileTaken()) {
+                        <div class="text-danger mt-1" style="font-size: .875em;">{{isMobileTakenMsg}}
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-custom-footer">
+                <button type="button" class="btn btn-light" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="addCustomerForm.invalid || isMobileTaken()">
+                    <i class="me-1" [class]="isEditMode ? 'bi bi-pencil-fill' : 'bi bi-check-lg'"></i>
+                    {{ isEditMode ? 'Update Customer' : 'Create Customer' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}

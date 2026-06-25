@@ -1,0 +1,203 @@
+<app-breadcrumb [items]="[{label:'Appointments'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Appointments</h4>
+        <p class="page-subheading">Manage all salon appointments</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="bi bi-plus-lg me-1"></i> Add Appointment
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="content-card mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control" placeholder="Search appointments..." [(ngModel)]="searchQuery"
+                    (input)="applyFilter()">
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <select class="form-select" [(ngModel)]="filterStatus" (change)="applyFilter()">
+                <option value="">All Status</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <select class="form-select" [(ngModel)]="filterDate" (change)="applyFilter()">
+                <option value="">All Dates</option>
+                <option value="2026-06-19">Today</option>
+                <option value="2026-06-20">Tomorrow</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2 text-end">
+            <span class="text-muted small">{{ filtered().length }} records</span>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Employee</th>
+                    <th>Service</th>
+                    <th>Date & Time</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (apt of filtered(); track apt.id) {
+                <tr>
+                    <td class="text-muted" style="font-size:.8rem">#{{ apt.id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm" [style.background]="getColor(apt.customer_name)">{{
+                                getInitials(apt.customer_name) }}</div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:.87rem">{{ apt.customer_name }}</div>
+                                <div class="text-muted" style="font-size:.75rem">{{ apt.mobile }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.86rem">{{ getStaffName(apt.staff_id) }}</td>
+                    <td style="font-size:.86rem">{{ apt.service_name }}</td>
+                    <td style="font-size:.85rem">{{ apt.appointment_date | date: 'dd/MM/yy' }}<br><small
+                            class="text-muted">{{
+                            apt.appointment_time }}</small></td>
+                    <td class="fw-semibold">₹{{ apt.total_amount | number }}</td>
+                    <td><span class="status-badge {{ apt.status }}">{{ apt.status | titlecase }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            @if (apt.status !== 'completed') {
+                            <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Edit"
+                                (click)="openEditModal(apt)"><i class="bi bi-pencil-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Cancel"><i
+                                    class="bi bi-x-circle-fill"></i></button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                }
+                @if (filtered().length === 0) {
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4"><i
+                            class="bi bi-inbox display-6 d-block mb-2"></i> No appointments found</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Modal -->
+@if (showAddModal) {
+<div class="modal-backdrop-custom" (click)="handleBackdropClick()"></div>
+<div class="modal-custom">
+    <div class="modal-custom-content">
+        <form [formGroup]="addAppointmentForm" (ngSubmit)="onSubmit()">
+            <div class="modal-custom-header">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-plus me-2 text-primary"></i>
+                    {{ isEditMode ? 'Edit Appointment' : 'Add Appointment' }}
+                </h5>
+                <button type="button" class="btn-close" (click)="handleBackdropClick()"></button>
+            </div>
+            <div class="modal-custom-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" formControlName="name" placeholder="Enter customer name"
+                            [class.is-invalid]="addAppointmentForm.get('name')?.touched && addAppointmentForm.get('name')?.invalid">
+                        <div class="invalid-feedback">Name is required (max 50 chars).</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" formControlName="mobile" placeholder="10-digit number"
+                            (blur)="onMobileBlur()"
+                            [class.is-invalid]="addAppointmentForm.get('mobile')?.touched && addAppointmentForm.get('mobile')?.invalid">
+                        <div class="invalid-feedback">Valid 10-digit mobile is required.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" formControlName="email" placeholder="Optional email"
+                            [class.is-invalid]="addAppointmentForm.get('email')?.touched && addAppointmentForm.get('email')?.invalid">
+                        <div class="invalid-feedback">Enter a valid email.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Employee (Staff)</label>
+                        <select class="form-select" formControlName="staff_id"
+                            [class.is-invalid]="addAppointmentForm.get('staff_id')?.touched && addAppointmentForm.get('staff_id')?.invalid">
+                            <option [ngValue]="null" disabled>Select Employee</option>
+                            @for (emp of employees; track emp.id) {
+                            <option [ngValue]="emp.id">{{ emp.name }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Please select an employee.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Service</label>
+                        <select class="form-select" formControlName="service_name"
+                            [class.is-invalid]="addAppointmentForm.get('service_name')?.touched && addAppointmentForm.get('service_name')?.invalid">
+                            <option value="" disabled>Select Service</option>
+                            @for (svc of services; track svc.id) {
+                            <option [value]="svc.name">{{ svc.name }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Please select a service.</div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" formControlName="appointment_date"
+                            [class.is-invalid]="addAppointmentForm.get('appointment_date')?.touched && addAppointmentForm.get('appointment_date')?.invalid">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Time</label>
+                        <input type="time" class="form-control" formControlName="appointment_time"
+                            [class.is-invalid]="addAppointmentForm.get('appointment_time')?.touched && addAppointmentForm.get('appointment_time')?.invalid">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Total Amount (₹)</label>
+                        <input type="number" class="form-control" formControlName="total_amount" placeholder="0"
+                            [class.is-invalid]="addAppointmentForm.get('total_amount')?.touched && addAppointmentForm.get('total_amount')?.invalid">
+                        <div class="invalid-feedback">Total amount is required.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" formControlName="status"
+                            [class.is-invalid]="addAppointmentForm.get('status')?.touched && addAppointmentForm.get('status')?.invalid">
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <div class="invalid-feedback">Status is required.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-custom-footer">
+                <button type="button" class="btn btn-light" (click)="handleBackdropClick()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>
+                    {{ isEditMode ? 'Update Appointment' : 'Save Appointment' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@if (showConfirmModal) {
+<app-confirm-modal title="Unsaved Changes"
+    message="You have unsaved changes. Are you sure you want to leave? Your data will be lost." confirmText="Yes, Leave"
+    cancelText="Stay Here" [isDanger]="true" (confirm)="closeModal()" (cancel)="showConfirmModal = false">
+</app-confirm-modal>
+}

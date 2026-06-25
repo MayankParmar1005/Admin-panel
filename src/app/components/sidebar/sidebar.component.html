@@ -1,0 +1,52 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="brand-icon">
+            <i class="bi bi-scissors"></i>
+        </div>
+        <span class="brand-text">LuxeSalon</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        @for (item of navItems; track item.label) {
+        @if (!item.children) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active" [title]="isCollapsed ? item.label : ''"
+            (click)="onNavClick()">
+            <i class="bi {{ item.icon }}"></i>
+            <span class="nav-label">{{ item.label }}</span>
+        </a>
+        } @else {
+        <div class="nav-group" [class.open]="expandedMenus.has(item.label)">
+            <button class="nav-item nav-group-toggle" (click)="toggleMenu(item.label)"
+                [title]="isCollapsed ? item.label : ''" type="button">
+                <i class="bi {{ item.icon }}"></i>
+                <span class="nav-label">{{ item.label }}</span>
+                <i class="bi bi-chevron-down nav-arrow"></i>
+            </button>
+            <div class="nav-children">
+                @for (child of item.children; track child.route) {
+                <a class="nav-child-item" [routerLink]="child.route" routerLinkActive="active" (click)="onNavClick()">
+                    <i class="bi bi-dot"></i>
+                    <span>{{ child.label }}</span>
+                </a>
+                }
+            </div>
+        </div>
+        }
+        }
+    </nav>
+
+    <!-- Bottom Toggle -->
+    <div class="sidebar-footer">
+        <button class="sidebar-toggle-btn" (click)="toggleSidebar()" type="button">
+            <i class="bi" [class.bi-arrow-bar-left]="!isCollapsed" [class.bi-arrow-bar-right]="isCollapsed"></i>
+            <span class="nav-label">Collapse</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Mobile Overlay -->
+@if (mobileOpen) {
+<div class="sidebar-overlay" (click)="closeMobile()"></div>
+}

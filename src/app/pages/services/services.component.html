@@ -1,0 +1,60 @@
+<app-breadcrumb [items]="[{label:'Services'}]"></app-breadcrumb>
+
+<div class="page-header">
+    <div>
+        <h4 class="page-heading">Services</h4>
+        <p class="page-subheading">Manage salon services and pricing</p>
+    </div>
+    <button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Service</button>
+</div>
+
+<!-- Category Tabs -->
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    @for (cat of categories; track cat) {
+    <button class="btn btn-sm" [class.btn-primary]="filterCat === cat" [class.btn-outline-secondary]="filterCat !== cat"
+        (click)="filterCat = cat; applyFilter()">{{ cat }}</button>
+    }
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Service Name</th>
+                    <th>Category</th>
+                    <th>Duration</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (svc of filtered(); track svc.id) {
+                <tr>
+                    <td class="text-muted" style="font-size:.8rem">{{ svc.id }}</td>
+                    <td>
+                        <div class="fw-semibold" style="font-size:.87rem">{{ svc.name }}</div>
+                        <small class="text-muted">{{ svc.description }}</small>
+                    </td>
+                    <td>
+                        <span class="category-badge" [attr.data-cat]="svc.category">{{ svc.category }}</span>
+                    </td>
+                    <td><i class="bi bi-clock text-muted me-1"></i>{{ svc.duration }} min</td>
+                    <td class="fw-bold text-primary">₹{{ svc.price | number }}</td>
+                    <td><span class="status-badge {{ svc.status }}">{{ svc.status | titlecase }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Edit"><i
+                                    class="bi bi-pencil-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Delete"><i
+                                    class="bi bi-trash-fill"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
