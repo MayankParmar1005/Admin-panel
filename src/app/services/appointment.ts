@@ -31,4 +31,8 @@ export class Appointment {
     return this.http.get(`${this.apiUrl}/mobile/${mobile}`);
   }
 
+  deleteAppointment(id: string) {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
 }
