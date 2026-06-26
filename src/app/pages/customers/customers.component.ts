@@ -8,11 +8,12 @@ import { Customer } from '../../services/customer';
 import { ToastService } from '../../services/toast.service';
 
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, PaginationModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, PaginationModule, ConfirmModalComponent],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
@@ -47,6 +48,9 @@ export class CustomersComponent implements OnInit {
   selectedCustomerAppointments = signal<any[]>([]);
   isLoadingAppointments = signal<boolean>(false);
   viewingCustomerName = '';
+
+  showDeleteConfirm = signal(false);
+  customerToDelete: CustomerModel | null = null;
 
   get activeCount() { return this.all.filter(c => c.status === 'active').length; }
   get topCustomersCount() { return this.all.filter(c => c.visits >= 10).length; }
@@ -129,6 +133,7 @@ export class CustomersComponent implements OnInit {
   closeModal(): void {
     this.showAddModal = false;
     this.showAppointmentsModal = false;
+    this.showDeleteConfirm.set(false);
     this.renderer.removeStyle(document.body, 'overflow');
   }
 
@@ -181,18 +186,33 @@ export class CustomersComponent implements OnInit {
   }
 
   onDelete(id: any): void {
-    if (confirm('Are you sure you want to delete this customer?')) {
-      this.customerService.deleteCustomer(id).subscribe({
+    const customer = this.all.find(c => c.id === id);
+    if (customer) {
+      this.customerToDelete = customer;
+      this.showDeleteConfirm.set(true);
+    }
+  }
+
+  confirmDelete(): void {
+    if (this.customerToDelete) {
+      this.customerService.deleteCustomer(this.customerToDelete.id).subscribe({
         next: (res: any) => {
           this.loadCustomer();
           this.toastService.success('Customer deleted successfully');
+          this.cancelDelete();
         },
         error: (err: any) => {
           console.error('Error deleting customer:', err);
           this.toastService.error((err?.error?.message) ? err.error.message : 'Failed to delete customer');
+          this.cancelDelete();
         }
       });
     }
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.customerToDelete = null;
   }
 
   viewAppointments(customer: CustomerModel): void {

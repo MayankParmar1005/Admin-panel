@@ -5,15 +5,22 @@
         <h4 class="page-heading">Services</h4>
         <p class="page-subheading">Manage salon services and pricing</p>
     </div>
-    <button class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Service</button>
+    <button class="btn btn-primary" (click)="openAddModal()"><i class="bi bi-plus-lg me-1"></i> Add Service</button>
 </div>
 
 <!-- Category Tabs -->
-<div class="mb-3 d-flex gap-2 flex-wrap">
-    @for (cat of categories; track cat) {
-    <button class="btn btn-sm" [class.btn-primary]="filterCat === cat" [class.btn-outline-secondary]="filterCat !== cat"
-        (click)="filterCat = cat; applyFilter()">{{ cat }}</button>
-    }
+<div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="d-flex gap-2 flex-wrap">
+        @for (cat of allCategories; track cat) {
+        <button class="btn btn-sm" [class.btn-primary]="filterCat === cat"
+            [class.btn-outline-secondary]="filterCat !== cat" (click)="filterCat = cat; applyFilter()">
+            {{ cat }} ({{ getCategoryCount(cat) }})
+        </button>
+        }
+    </div>
+    <div class="text-secondary small d-none d-md-block">
+        Total Records: <span class="fw-bold text-dark">{{ filtered().length }}</span>
+    </div>
 </div>
 
 <div class="content-card">
@@ -31,7 +38,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (svc of filtered(); track svc.id) {
+                @for (svc of pagedItems(); track svc.id) {
                 <tr>
                     <td class="text-muted" style="font-size:.8rem">{{ svc.id }}</td>
                     <td>
@@ -46,10 +53,10 @@
                     <td><span class="status-badge {{ svc.status }}">{{ svc.status | titlecase }}</span></td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Edit"><i
-                                    class="bi bi-pencil-fill"></i></button>
-                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Delete"><i
-                                    class="bi bi-trash-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Edit"
+                                (click)="openEditModal(svc)"><i class="bi bi-pencil-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Delete"
+                                (click)="onDelete(svc.id)"><i class="bi bi-trash-fill"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -57,4 +64,114 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    <div class="content-card-footer d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+            Showing {{ (currentPage() - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage() * itemsPerPage,
+            filtered().length) }} of {{ filtered().length }} records
+        </div>
+        <pagination [totalItems]="filtered().length" [(ngModel)]="currentPage" [itemsPerPage]="itemsPerPage"
+            [maxSize]="5" [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
+            lastText="&raquo;" (pageChanged)="applyFilter()" class="pagination-sm mb-0">
+        </pagination>
+    </div>
 </div>
+
+<!-- Add Service Modal -->
+@if (showAddModal()) {
+<div class="modal-backdrop-custom" (click)="closeModal()"></div>
+<div class="modal-custom" (click)="closeModal()">
+    <div class="modal-custom-content" (click)="$event.stopPropagation()">
+        <div class="modal-custom-header">
+            <h5 class="mb-0 fw-bold">
+                <i class="me-2 text-primary" [class]="isEditMode ? 'bi bi-pencil-fill' : 'bi bi-patch-plus'"></i>
+                {{ isEditMode ? 'Edit Service' : 'Add New Service' }}
+            </h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+
+        <form [formGroup]="addServiceForm" (ngSubmit)="onSubmit()">
+            <div class="modal-custom-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-8">
+                        <label class="form-label">Service Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" formControlName="name"
+                            placeholder="E.g. Hair Cut & Style"
+                            [class.is-invalid]="addServiceForm.get('name')?.touched && addServiceForm.get('name')?.invalid">
+                        <div class="invalid-feedback">Service name is required.</div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <select class="form-select" formControlName="category"
+                            [class.is-invalid]="addServiceForm.get('category')?.touched && addServiceForm.get('category')?.invalid">
+                            <option value="" disabled>Select Category</option>
+                            @for (cat of categories; track cat) {
+                            <option [value]="cat">{{ cat }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Category is required.</div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Duration (Minutes) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-clock"></i></span>
+                            <input type="number" class="form-control" formControlName="duration"
+                                [class.is-invalid]="addServiceForm.get('duration')?.touched && addServiceForm.get('duration')?.invalid">
+                        </div>
+                        <div class="invalid-feedback" style="display:block"
+                            *ngIf="addServiceForm.get('duration')?.touched && addServiceForm.get('duration')?.invalid">
+                            Valid duration is required.
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">₹</span>
+                            <input type="number" class="form-control" formControlName="price" placeholder="0.00"
+                                [class.is-invalid]="addServiceForm.get('price')?.touched && addServiceForm.get('price')?.invalid">
+                        </div>
+                        <div class="invalid-feedback" style="display:block"
+                            *ngIf="addServiceForm.get('price')?.touched && addServiceForm.get('price')?.invalid">
+                            Valid price is required.
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" formControlName="description" rows="2"
+                            placeholder="Brief details about the service..."></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" formControlName="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-custom-footer">
+                <button type="button" class="btn btn-light" (click)="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="addServiceForm.invalid">
+                    <i class="bi bi-check-lg me-1"></i>
+                    {{ isEditMode ? 'Update Service' : 'Create Service' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@if (showDeleteConfirm()) {
+<app-confirm-modal title="Delete Service"
+    [message]="'Are you sure you want to delete the service \'' + serviceToDelete?.name + '\'? This action cannot be undone.'"
+    confirmText="Yes, Delete" cancelText="No, Keep It" [isDanger]="true" (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()">
+</app-confirm-modal>
+}

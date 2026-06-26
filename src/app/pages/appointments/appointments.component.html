@@ -91,8 +91,8 @@
                             @if (apt.status !== 'completed') {
                             <button class="btn btn-sm btn-icon-action btn-outline-primary" title="Edit"
                                 (click)="openEditModal(apt)"><i class="bi bi-pencil-fill"></i></button>
-                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Cancel"><i
-                                    class="bi bi-x-circle-fill"></i></button>
+                            <button class="btn btn-sm btn-icon-action btn-outline-danger" title="Delete"
+                                (click)="onDelete(apt.id)"><i class="bi bi-trash-fill"></i></button>
                             }
                         </div>
                     </td>
@@ -240,5 +240,13 @@
 <app-confirm-modal title="Unsaved Changes"
     message="You have unsaved changes. Are you sure you want to leave? Your data will be lost." confirmText="Yes, Leave"
     cancelText="Stay Here" [isDanger]="true" (confirm)="closeModal()" (cancel)="showConfirmModal = false">
+</app-confirm-modal>
+}
+
+@if (showDeleteModal) {
+<app-confirm-modal title="Delete Appointment"
+    [message]="'Are you sure you want to delete the appointment for \'' + appointmentToDelete?.customer_name + '\'? This action cannot be undone.'"
+    confirmText="Yes, Delete" cancelText="No, Keep It" [isDanger]="true" (confirm)="confirmDeleteAppointment()"
+    (cancel)="cancelDeleteAppointment()">
 </app-confirm-modal>
 }

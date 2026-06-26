@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-    CustomerModel, Service, Appointment,
+    CustomerModel, ServiceModel, Appointment,
     Invoice, DashboardStats, RevenueData
 } from '../models';
 
@@ -65,7 +65,7 @@ export class DataService {
     //     ];
     // }
 
-    getServices(): Service[] {
+    getServices(): ServiceModel[] {
         return [
             { id: 1, name: 'Haircut & Blow Dry', category: 'Hair', duration: 45, price: 500, description: 'Professional haircut with blowdry finish', status: 'active' },
             { id: 2, name: 'Hair Coloring', category: 'Hair', duration: 120, price: 2500, description: 'Full hair coloring with premium colors', status: 'active' },

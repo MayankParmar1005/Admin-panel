@@ -32,7 +32,7 @@ export interface EmployeeModel {
     rating: number;
 }
 
-export interface Service {
+export interface ServiceModel {
     id: number;
     name: string;
     category: string;
@@ -40,6 +40,7 @@ export interface Service {
     price: number;
     description: string;
     status: 'active' | 'inactive';
+    created_at?: string;
 }
 
 // export interface Appointment {

@@ -7,7 +7,7 @@ import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-mo
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 
-import { EmployeeModel, Service, Appointment } from '../../models';
+import { EmployeeModel, ServiceModel, Appointment } from '../../models';
 
 import { DataService } from '../../services/data.service';
 import { Employee as EmployeeService } from '../../services/employee';
@@ -33,13 +33,15 @@ export class AppointmentsComponent implements OnInit {
   all: Appointment[] = [];
   filtered = signal<Appointment[]>([]);
   employees: EmployeeModel[] = [];
-  services: Service[] = [];
+  services: ServiceModel[] = [];
 
   searchQuery = '';
   filterStatus = '';
   filterDate: Date | undefined = undefined;
   showAddModal = false;
   showConfirmModal = false;
+  showDeleteModal = false;
+  appointmentToDelete: Appointment | null = null;
 
   currentPage = signal(1);
   itemsPerPage = 10;
@@ -289,5 +291,35 @@ export class AppointmentsComponent implements OnInit {
   getStaffName(id: number | null): string {
     const staff = this.employees.find(e => e.id === id);
     return staff ? staff.name : 'Unknown';
+  }
+
+  onDelete(id: any): void {
+    const appointment = this.all.find(a => a.id === id);
+    if (appointment) {
+      this.appointmentToDelete = appointment;
+      this.showDeleteModal = true;
+    }
+  }
+
+  confirmDeleteAppointment(): void {
+    if (this.appointmentToDelete) {
+      this.appointmentService.deleteAppointment(this.appointmentToDelete.id.toString()).subscribe({
+        next: (res: any) => {
+          this.loadAppointments();
+          this.toastService.success('Appointment deleted successfully');
+          this.cancelDeleteAppointment();
+        },
+        error: (err: any) => {
+          console.error('Error deleting appointment:', err);
+          this.toastService.error('Failed to delete appointment');
+          this.cancelDeleteAppointment();
+        }
+      });
+    }
+  }
+
+  cancelDeleteAppointment(): void {
+    this.showDeleteModal = false;
+    this.appointmentToDelete = null;
   }
 }

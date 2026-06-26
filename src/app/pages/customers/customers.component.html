@@ -288,3 +288,11 @@
     </div>
 </div>
 }
+
+@if (showDeleteConfirm()) {
+<app-confirm-modal title="Delete Customer"
+    [message]="'Are you sure you want to delete the customer \'' + customerToDelete?.name + '\'? This action cannot be undone and will remove all their data.'"
+    confirmText="Yes, Delete" cancelText="No, Keep It" [isDanger]="true" (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()">
+</app-confirm-modal>
+}
