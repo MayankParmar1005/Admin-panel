@@ -29,11 +29,18 @@
             </select>
         </div>
         <div class="col-6 col-md-3">
-            <select class="form-select" [(ngModel)]="filterDate" (change)="applyFilter()">
-                <option value="">All Dates</option>
-                <option value="2026-06-19">Today</option>
-                <option value="2026-06-20">Tomorrow</option>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar3"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="Filter by date" bsDatepicker
+                    [bsConfig]="{ containerClass: 'theme-blue', dateInputFormat: 'DD-MM-YYYY', adaptivePosition: true }"
+                    [bsValue]="filterDate" (bsValueChange)="onDateChange($event || undefined)">
+                @if (filterDate) {
+                <button class="btn btn-outline-light border border-start-0 text-muted" type="button"
+                    style="border-color: #dee2e6 !important;" (click)="filterDate = undefined; applyFilter()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                }
+            </div>
         </div>
         <div class="col-12 col-md-2 text-end">
             <span class="text-muted small">{{ filtered().length }} records</span>
@@ -43,6 +50,7 @@
 
 <!-- Table -->
 <div class="content-card">
+    @if (filtered().length > 0) {
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
@@ -58,7 +66,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (apt of filtered(); track apt.id) {
+                @for (apt of pagedItems(); track apt.id) {
                 <tr>
                     <td class="text-muted" style="font-size:.8rem">#{{ apt.id }}</td>
                     <td>
@@ -73,9 +81,9 @@
                     </td>
                     <td style="font-size:.86rem">{{ getStaffName(apt.staff_id) }}</td>
                     <td style="font-size:.86rem">{{ apt.service_name }}</td>
-                    <td style="font-size:.85rem">{{ apt.appointment_date | date: 'dd/MM/yy' }}<br><small
-                            class="text-muted">{{
-                            apt.appointment_time }}</small></td>
+                    <td style="font-size:.85rem">{{ apt.appointment_date | date: 'dd/MM/yy' }}<br>
+                        <small class="text-muted">{{ apt.appointment_time }}</small>
+                    </td>
                     <td class="fw-semibold">₹{{ apt.total_amount | number }}</td>
                     <td><span class="status-badge {{ apt.status }}">{{ apt.status | titlecase }}</span></td>
                     <td>
@@ -90,15 +98,38 @@
                     </td>
                 </tr>
                 }
-                @if (filtered().length === 0) {
-                <tr>
-                    <td colspan="8" class="text-center text-muted py-4"><i
-                            class="bi bi-inbox display-6 d-block mb-2"></i> No appointments found</td>
-                </tr>
-                }
             </tbody>
         </table>
     </div>
+
+    @if (filtered().length > itemsPerPage) {
+    <div class="card-footer bg-white border-0 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                Showing {{ (currentPage() - 1) * itemsPerPage + 1 }} to
+                {{ Math.min(currentPage() * itemsPerPage, filtered().length) }}
+                of {{ filtered().length }} records
+            </div>
+            <pagination [totalItems]="filtered().length" [(ngModel)]="currentPage" [itemsPerPage]="itemsPerPage"
+                [maxSize]="5" [boundaryLinks]="true" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;"
+                lastText="&raquo;" class="pagination-sm mb-0">
+            </pagination>
+        </div>
+    </div>
+    }
+    } @else {
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-calendar-x"></i>
+        </div>
+        <h4 class="empty-title">No Appointments Found</h4>
+        <p class="empty-text">We couldn't find any appointments matching your criteria. Try adjusting your filters or
+            add a new appointment.</p>
+        <button class="btn btn-primary" (click)="openAddModal()">
+            <i class="bi bi-plus-lg me-1"></i> Add Appointment
+        </button>
+    </div>
+    }
 </div>
 
 <!-- Add Modal -->

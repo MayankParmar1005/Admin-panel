@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, Renderer2 } from '@angular/core';
+import { Component, inject, OnInit, signal, Renderer2, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from '../../services/data.service';
@@ -7,14 +7,17 @@ import { CustomerModel } from '../../models';
 import { Customer } from '../../services/customer';
 import { ToastService } from '../../services/toast.service';
 
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, PaginationModule],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss']
 })
 export class CustomersComponent implements OnInit {
+  protected Math = Math;
   private dataService = inject(DataService);
   private customerService = inject(Customer);
   private fb = inject(FormBuilder);
@@ -25,6 +28,14 @@ export class CustomersComponent implements OnInit {
   filtered = signal<CustomerModel[]>([]);
   searchQuery = '';
   filterStatus = '';
+
+  currentPage = signal(1);
+  itemsPerPage = 10;
+  pagedItems = computed(() => {
+    const start = (this.currentPage() - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.filtered().slice(start, end);
+  });
 
   showAddModal = false;
   addCustomerForm!: FormGroup;
@@ -57,8 +68,12 @@ export class CustomersComponent implements OnInit {
   }
 
   applyFilter(): void {
+    this.currentPage.set(1);
     this.filtered.set(this.all.filter(c =>
-      (!this.searchQuery || c.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || c.email.toLowerCase().includes(this.searchQuery.toLowerCase())) &&
+      (!this.searchQuery ||
+        c.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        c.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        (c.mobile && c.mobile.includes(this.searchQuery))) &&
       (!this.filterStatus || c.status === this.filterStatus)
     ));
   }

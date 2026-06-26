@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, signal, Renderer2 } from '@angular/core';
+import { Component, inject, OnInit, signal, Renderer2, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
 import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 import { EmployeeModel, Service, Appointment } from '../../models';
 
@@ -16,11 +17,12 @@ import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-appointments',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, ConfirmModalComponent, BsDatepickerModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, ConfirmModalComponent, BsDatepickerModule, PaginationModule],
   templateUrl: './appointments.component.html',
   styleUrls: ['./appointments.component.scss']
 })
 export class AppointmentsComponent implements OnInit {
+  protected Math = Math;
   private dataService = inject(DataService);
   private employeeService = inject(EmployeeService);
   private appointmentService = inject(AppointmentService);
@@ -35,9 +37,17 @@ export class AppointmentsComponent implements OnInit {
 
   searchQuery = '';
   filterStatus = '';
-  filterDate = '';
+  filterDate: Date | undefined = undefined;
   showAddModal = false;
   showConfirmModal = false;
+
+  currentPage = signal(1);
+  itemsPerPage = 10;
+  pagedItems = computed(() => {
+    const start = (this.currentPage() - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.filtered().slice(start, end);
+  });
   isEditMode = false;
   editId: string | null = null;
   addAppointmentForm!: FormGroup;
@@ -89,13 +99,51 @@ export class AppointmentsComponent implements OnInit {
   }
 
   applyFilter(): void {
-    this.filtered.set(this.all.filter((a: any) =>
-      (!this.searchQuery ||
+    this.currentPage.set(1);
+    this.filtered.set(this.all.filter((a: any) => {
+      const matchesSearch = !this.searchQuery ||
         (a.customer_name && a.customer_name.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-        (a.service_name && a.service_name.toLowerCase().includes(this.searchQuery.toLowerCase()))) &&
-      (!this.filterStatus || a.status === this.filterStatus) &&
-      (!this.filterDate || a.appointment_date === this.filterDate)
-    ));
+        (a.service_name && a.service_name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+
+      const matchesStatus = !this.filterStatus || a.status === this.filterStatus;
+
+      let matchesDate = true;
+      // Updated check for undefined
+      if (this.filterDate) {
+        const selectedDateStr = this.formatDateToYYYYMMDD(this.filterDate);
+        const recordDate = a.appointment_date ? a.appointment_date.split('T')[0].trim() : '';
+        matchesDate = recordDate === selectedDateStr;
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
+    }));
+  }
+
+  // Robust helper method to format date matching local timezone
+  private formatDateToYYYYMMDD(date: any): string {
+    if (date instanceof Date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    // If it's already a string, try to slice the first 10 characters (YYYY-MM-DD)
+    if (typeof date === 'string') {
+      return date.split('T')[0].trim();
+    }
+    return '';
+  }
+
+  onDateChange(value: Date | undefined): void {
+    this.filterDate = value;
+    this.applyFilter();
+  }
+
+  resetFilter(): void {
+    this.searchQuery = '';
+    this.filterStatus = '';
+    this.filterDate = undefined;
+    this.applyFilter();
   }
 
   getInitials(name: string): string {

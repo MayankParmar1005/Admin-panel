@@ -35,5 +35,9 @@ export class Customer {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getCustomerAppointmentList(id: string) {
+    return this.http.get(`${this.apiUrl}/${id}/appointments`);
+  }
+
 
 }
