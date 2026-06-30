@@ -5,11 +5,13 @@ import { DataService } from '../../services/data.service';
 import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
 import { EmployeeModel } from '../../models';
 import { Employee } from '../../services/employee';
+import { ToastService } from '../../services/toast.service';
+import { ConfirmModalComponent } from '../../components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbComponent, ConfirmModalComponent],
   templateUrl: './employees.component.html',
   styleUrls: ['./employees.component.scss']
 })
@@ -18,6 +20,7 @@ export class EmployeesComponent implements OnInit {
   private employeeService = inject(Employee);
   private fb = inject(FormBuilder);
   private renderer = inject(Renderer2);
+  private toastService = inject(ToastService);
 
 
   all: EmployeeModel[] = [];
@@ -31,6 +34,9 @@ export class EmployeesComponent implements OnInit {
   selectedEmployeeId: any = null;
   viewEmployee: EmployeeModel | null = null;
   addEmployeeForm!: FormGroup;
+
+  showDeleteConfirm = signal(false);
+  deleteEmployeeId: number | null = null;
 
   private avatarColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f97316', '#ef4444', '#06b6d4', '#f59e0b', '#ec4899'];
 
@@ -113,13 +119,16 @@ export class EmployeesComponent implements OnInit {
         ? this.employeeService.updateEmployee(this.selectedEmployeeId, this.addEmployeeForm.value)
         : this.employeeService.createEmployee(this.addEmployeeForm.value);
 
+      const action = this.isEditMode ? 'updated' : 'added';
       apiCall.subscribe({
         next: (res) => {
           this.loadEmployees();
           this.closeModal();
+          this.toastService.success(`Employee ${action} successfully!`);
         },
         error: (err) => {
           console.error(`Error ${this.isEditMode ? 'updating' : 'adding'} employee:`, err);
+          this.toastService.error(`Failed to ${this.isEditMode ? 'update' : 'add'} employee. Please try again.`);
         }
       });
     } else {
@@ -139,5 +148,26 @@ export class EmployeesComponent implements OnInit {
       rating: 5.0
     });
     this.renderer.removeStyle(document.body, 'overflow');
+  }
+
+  onDelete(id: number): void {
+    this.deleteEmployeeId = id;
+    this.showDeleteConfirm.set(true);
+  }
+
+  confirmDelete(): void {
+    if (this.deleteEmployeeId === null) return;
+    this.employeeService.deleteEmployee(this.deleteEmployeeId).subscribe({
+      next: () => {
+        this.loadEmployees();
+        this.toastService.success('Employee deleted successfully!');
+      },
+      error: (err) => {
+        console.error('Error deleting employee:', err);
+        this.toastService.error('Failed to delete employee. Please try again.');
+      }
+    });
+    this.showDeleteConfirm.set(false);
+    this.deleteEmployeeId = null;
   }
 }
