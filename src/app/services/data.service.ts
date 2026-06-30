@@ -9,14 +9,15 @@ export class DataService {
 
     getStats(): DashboardStats {
         return {
-            todayAppointments: 12,
-            todayRevenue: 8450,
+            todaysAppointments: 12,
+            todaysRevenue: 8450,
             totalCustomers: 348,
             totalEmployees: 8,
             appointmentsChange: 8.5,
             revenueChange: 12.3,
             customersChange: 4.1,
             employeesChange: 0,
+            scheduled: '3'
         };
     }
 

@@ -26,38 +26,10 @@ export class SidebarComponent {
 
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'bi-grid-1x2-fill', route: '/dashboard' },
-    {
-      label: 'Appointments',
-      icon: 'bi-calendar-check-fill',
-      children: [
-        { label: 'Appointment List', route: '/appointments' },
-        { label: 'Add Appointment', route: '/appointments/add' },
-      ],
-    },
-    {
-      label: 'Customers',
-      icon: 'bi-people-fill',
-      children: [
-        { label: 'Customer List', route: '/customers' },
-        { label: 'Customer History', route: '/customers/history' },
-      ],
-    },
-    {
-      label: 'Employees',
-      icon: 'bi-person-badge-fill',
-      children: [
-        { label: 'Employee List', route: '/employees' },
-        { label: 'Add Employee', route: '/employees/add' },
-      ],
-    },
-    {
-      label: 'Services',
-      icon: 'bi-stars',
-      children: [
-        { label: 'Service List', route: '/services' },
-        { label: 'Add Service', route: '/services/add' },
-      ],
-    },
+    { label: 'Appointments', icon: 'bi-calendar-check-fill', route: '/appointments' },
+    { label: 'Customers', icon: 'bi-people-fill', route: '/customers' },
+    { label: 'Employees', icon: 'bi-person-badge-fill', route: '/employees' },
+    { label: 'Services', icon: 'bi-stars', route: '/services' },
     { label: 'Billing', icon: 'bi-receipt-cutoff', route: '/billing' },
     { label: 'Reports', icon: 'bi-bar-chart-fill', route: '/reports' },
     { label: 'Settings', icon: 'bi-gear-fill', route: '/settings' },

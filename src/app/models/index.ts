@@ -17,6 +17,7 @@ export interface CustomerModel {
     last_visit: string;
     status: 'active' | 'inactive';
     avatar?: string;
+    total_visits: string;
 }
 
 export interface EmployeeModel {
@@ -61,7 +62,7 @@ export interface ServiceModel {
 
 export interface Appointment {
     id: number;
-    
+
     // Customer payload properties
     customer_name: string;             // Matches backend const { name }
     mobile: string;           // Matches backend const { mobile }
@@ -69,11 +70,12 @@ export interface Appointment {
 
     // Table specific underscore properties
     staff_id: number | null;        // Matches backend const { staff_id }
-    service_name: string;          // Matches backend const { service_name }
+    service_id: number;            // Matches backend const { service_id }
     appointment_date: string;      // Matches backend const { appointment_date }
     appointment_time: string;      // Matches backend const { appointment_time }
     total_amount: number;          // Matches backend const { total_amount }
-    
+    service_name: string;
+
     status: 'scheduled' | 'completed' | 'cancelled';
 }
 
@@ -91,15 +93,23 @@ export interface Invoice {
 }
 
 export interface DashboardStats {
-    todayAppointments: number;
-    todayRevenue: number;
+    todaysAppointments: number;
+    todaysRevenue: number;
     totalCustomers: number;
     totalEmployees: number;
     appointmentsChange: number;
     revenueChange: number;
     customersChange: number;
     employeesChange: number;
+    scheduled: string;
 }
+
+export interface TodayOverviewModel {
+    scheduled: number;
+    completed: number;
+    cancelled: number;
+    revenueCollected: number;
+  }
 
 export interface RevenueData {
     month: string;

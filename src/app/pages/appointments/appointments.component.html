@@ -80,7 +80,7 @@
                         </div>
                     </td>
                     <td style="font-size:.86rem">{{ getStaffName(apt.staff_id) }}</td>
-                    <td style="font-size:.86rem">{{ apt.service_name }}</td>
+                    <td style="font-size:.86rem">{{ getServiceName(apt.service_id) }}</td>
                     <td style="font-size:.85rem">{{ apt.appointment_date | date: 'dd/MM/yy' }}<br>
                         <small class="text-muted">{{ apt.appointment_time }}</small>
                     </td>
@@ -178,11 +178,11 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label class="form-label">Service</label>
-                        <select class="form-select" formControlName="service_name"
-                            [class.is-invalid]="addAppointmentForm.get('service_name')?.touched && addAppointmentForm.get('service_name')?.invalid">
-                            <option value="" disabled>Select Service</option>
+                        <select class="form-select" formControlName="service_id"
+                            [class.is-invalid]="addAppointmentForm.get('service_id')?.touched && addAppointmentForm.get('service_id')?.invalid">
+                            <option [ngValue]="null" disabled>Select Service</option>
                             @for (svc of services; track svc.id) {
-                            <option [value]="svc.name">{{ svc.name }}</option>
+                            <option [ngValue]="svc.id">{{ svc.name }}</option>
                             }
                         </select>
                         <div class="invalid-feedback">Please select a service.</div>

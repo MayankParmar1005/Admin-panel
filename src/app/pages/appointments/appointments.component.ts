@@ -12,6 +12,7 @@ import { EmployeeModel, ServiceModel, Appointment } from '../../models';
 import { DataService } from '../../services/data.service';
 import { Employee as EmployeeService } from '../../services/employee';
 import { Appointment as AppointmentService } from '../../services/appointment';
+import { SalonService } from '../../services/salon-service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
@@ -26,6 +27,7 @@ export class AppointmentsComponent implements OnInit {
   private dataService = inject(DataService);
   private employeeService = inject(EmployeeService);
   private appointmentService = inject(AppointmentService);
+  private salonService = inject(SalonService);
   private fb = inject(FormBuilder);
   private renderer = inject(Renderer2);
   private toastService = inject(ToastService);
@@ -68,7 +70,7 @@ export class AppointmentsComponent implements OnInit {
       mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       email: ['', [Validators.email]],
       staff_id: [null, Validators.required],
-      service_name: ['', Validators.required],
+      service_id: [null, Validators.required],
       appointment_date: [new Date().toISOString().split('T')[0], Validators.required],
       appointment_time: ['10:00', Validators.required],
       total_amount: [0, [Validators.required, Validators.min(0)]],
@@ -97,7 +99,10 @@ export class AppointmentsComponent implements OnInit {
       next: (res: any) => this.employees = res,
       error: (err) => console.error('Error loading employees:', err)
     });
-    this.services = this.dataService.getServices(); // static data for services
+    this.salonService.getServices().subscribe({
+      next: (res: any) => this.services = res,
+      error: (err) => console.error('Error loading services:', err)
+    });
   }
 
   applyFilter(): void {
@@ -105,7 +110,7 @@ export class AppointmentsComponent implements OnInit {
     this.filtered.set(this.all.filter((a: any) => {
       const matchesSearch = !this.searchQuery ||
         (a.customer_name && a.customer_name.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-        (a.service_name && a.service_name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+        (this.getServiceName(a.service_id).toLowerCase().includes(this.searchQuery.toLowerCase()));
 
       const matchesStatus = !this.filterStatus || a.status === this.filterStatus;
 
@@ -196,7 +201,7 @@ export class AppointmentsComponent implements OnInit {
           mobile: res.customer_mobile,
           email: res.customer_email,
           staff_id: res.staff_id,
-          service_name: res.service_name,
+          service_id: res.service_id,
           appointment_date: formattedDate,
           appointment_time: formattedTime,
           total_amount: res.total_amount,
@@ -291,6 +296,11 @@ export class AppointmentsComponent implements OnInit {
   getStaffName(id: number | null): string {
     const staff = this.employees.find(e => e.id === id);
     return staff ? staff.name : 'Unknown';
+  }
+
+  getServiceName(id: number | null): string {
+    const svc = this.services.find(s => s.id === id);
+    return svc ? svc.name : 'Unknown';
   }
 
   onDelete(id: any): void {

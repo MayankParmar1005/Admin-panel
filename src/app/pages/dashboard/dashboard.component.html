@@ -3,11 +3,11 @@
 <!-- Summary Cards -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
-        <app-dashboard-card label="Today's Appointments" [value]="stats.todayAppointments" icon="bi-calendar-check-fill"
+        <app-dashboard-card label="Today's Appointments" [value]="stats.todaysAppointments" icon="bi-calendar-check-fill"
             color="blue" [change]="stats.appointmentsChange"></app-dashboard-card>
     </div>
     <div class="col-6 col-lg-3">
-        <app-dashboard-card label="Today's Revenue" [value]="stats.todayRevenue" icon="bi-currency-rupee" color="green"
+        <app-dashboard-card label="Today's Revenue" [value]="stats.todaysRevenue" icon="bi-currency-rupee" color="green"
             [change]="stats.revenueChange" prefix="₹"></app-dashboard-card>
     </div>
     <div class="col-6 col-lg-3">
@@ -28,13 +28,14 @@
                 <i class="bi bi-bar-chart-fill"></i>
                 Monthly Revenue Overview
                 <span class="ms-auto badge bg-primary-subtle text-primary rounded-pill fw-semibold"
-                    style="font-size:.75rem">2026</span>
+                    style="font-size:.75rem">{{currentYear}}</span>
             </div>
             <div class="revenue-chart-area">
                 <div class="chart-bar-wrap">
                     @for (d of revenueData; track d.month) {
                     <div class="chart-bar-col">
                         <span class="chart-amount">₹{{ (d.revenue / 1000).toFixed(0) }}k</span>
+                        <!-- <span class="chart-amount">₹{{ (d.revenue).toFixed(0) }}</span> -->
                         <div class="chart-bar" [style.height.%]="getBarHeight(d.revenue)"></div>
                         <span class="chart-label">{{ d.month }}</span>
                     </div>
@@ -54,40 +55,48 @@
                     <div class="flex-grow-1">
                         <div class="today-stat-label">Scheduled</div>
                         <div class="today-stat-bar">
-                            <div class="today-stat-fill" style="width:75%;background:#3b82f6"></div>
+                            <div class="today-stat-fill"
+                            [style.width.%]="stats.todaysAppointments > 0 ? (todayOverview.scheduled / stats.todaysAppointments) * 100 : 0"
+                            style="background:#3b82f6"></div>
                         </div>
                     </div>
-                    <span class="today-stat-count text-primary">9</span>
+                    <span class="today-stat-count text-primary">{{todayOverview.scheduled}}</span>
                 </div>
                 <div class="today-stat-item">
                     <div class="today-stat-icon bg-green-soft"><i class="bi bi-check-circle text-success"></i></div>
                     <div class="flex-grow-1">
                         <div class="today-stat-label">Completed</div>
                         <div class="today-stat-bar">
-                            <div class="today-stat-fill" style="width:25%;background:#10b981"></div>
+                            <div class="today-stat-fill"
+                            [style.width.%]="stats.todaysAppointments > 0 ? (todayOverview.completed / stats.todaysAppointments) * 100 : 0"
+                            style="background:#10b981"></div>
                         </div>
                     </div>
-                    <span class="today-stat-count text-success">3</span>
+                    <span class="today-stat-count text-success">{{todayOverview.completed}}</span>
                 </div>
                 <div class="today-stat-item">
                     <div class="today-stat-icon bg-red-soft"><i class="bi bi-x-circle text-danger"></i></div>
                     <div class="flex-grow-1">
                         <div class="today-stat-label">Cancelled</div>
                         <div class="today-stat-bar">
-                            <div class="today-stat-fill" style="width:8%;background:#ef4444"></div>
+                            <div class="today-stat-fill"
+                            [style.width.%]="stats.todaysAppointments > 0 ? (todayOverview.cancelled / stats.todaysAppointments) * 100 : 0"
+                            style="background:#ef4444"></div>
                         </div>
                     </div>
-                    <span class="today-stat-count text-danger">1</span>
+                    <span class="today-stat-count text-danger">{{todayOverview.cancelled}}</span>
                 </div>
                 <div class="today-stat-item">
                     <div class="today-stat-icon bg-orange-soft"><i class="bi bi-cash-stack text-warning"></i></div>
                     <div class="flex-grow-1">
                         <div class="today-stat-label">Revenue Collected</div>
                         <div class="today-stat-bar">
-                            <div class="today-stat-fill" style="width:60%;background:#f59e0b"></div>
+                            <div class="today-stat-fill"
+                            [style.width.%]="todayOverview.revenueCollected >= 10000 ? 100 : (todayOverview.revenueCollected / 10000) * 100"
+                            style="background:#f59e0b"></div>
                         </div>
                     </div>
-                    <span class="today-stat-count text-warning">₹5.1k</span>
+                    <span class="today-stat-count text-warning">₹{{todayOverview.revenueCollected}}</span>
                 </div>
             </div>
         </div>
@@ -119,18 +128,21 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <!-- <div class="avatar-sm" [style.background]="getAvatar(apt.customerName)">
-                                        {{ getInitials(apt.customerName) }}
+                                    <div class="avatar-sm" [style.background]="getAvatar(apt.customer_name)">
+                                        {{ getInitials(apt.customer_name) }}
                                     </div>
                                     <div>
-                                        <div class="fw-semibold" style="font-size:.87rem">{{ apt.customerName }}</div>
-                                        <small class="text-muted">{{ apt.employeeName }}</small>
-                                    </div> -->
+                                        <div class="fw-semibold" style="font-size:.87rem">{{ apt.customer_name }}</div>
+                                        <!-- <small class="text-muted">{{ apt.customer_name }}</small> -->
+                                    </div>
                                 </div>
                             </td>
-                            <!-- <td><span style="font-size:.85rem">{{ apt.serviceName }}</span></td>
-                            <td><span style="font-size:.85rem">{{ apt.time }}</span></td>
-                            <td><span class="status-badge {{ apt.status }}">{{ apt.status | titlecase }}</span></td> -->
+                            <td><span style="font-size:.85rem">{{ apt.service_name }}</span></td>
+                            <td><span style="font-size:.85rem">
+                                {{apt.appointment_date | date:'dd/MM/yy'}}
+                                {{ apt.appointment_time }}
+                            </span></td>
+                            <td><span class="status-badge {{ apt.status }}">{{ apt.status | titlecase }}</span></td>
                         </tr>
                         }
                     </tbody>
@@ -155,7 +167,7 @@
                         <div class="fw-semibold" style="font-size:.87rem">{{ c.name }}</div>
                         <!-- <small class="text-muted">{{ c.totalVisits }} visits · ₹{{ c.totalSpent | number }}</small> -->
                     </div>
-                    <span class="status-badge {{ c.status }}">{{ c.status | titlecase }}</span>
+                    <span class="status-badge {{ c.total_visits }}">{{ c.total_visits }} visits</span>
                 </div>
                 }
             </div>
