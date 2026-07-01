@@ -36,7 +36,15 @@
     <div class="col-12 col-sm-6 col-xl-4">
         <div class="emp-card">
             <div class="emp-card-header">
-                <div class="emp-avatar" [style.background]="getColor(emp.name)">{{ getInitials(emp.name) }}</div>
+                <div class="emp-avatar"
+                    [style.background]="(emp.image_url || emp.avatar) ? 'transparent' : getColor(emp.name)">
+                    @if (emp.image_url || emp.avatar) {
+                    <img [src]="getImageUrl(emp.image_url || emp.avatar)" alt="avatar"
+                        style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+                    } @else {
+                    {{ getInitials(emp.name) }}
+                    }
+                </div>
                 <span class="status-badge {{ emp.status }}">{{ emp.status | titlecase }}</span>
             </div>
             <div class="emp-card-body">
@@ -95,8 +103,14 @@
             <div class="profile-layout">
                 <!-- Sidebar: Visual Branding -->
                 <div class="profile-sidebar">
-                    <div class="profile-avatar" [style.background]="getColor(viewEmployee.name)">
+                    <div class="profile-avatar"
+                        [style.background]="(viewEmployee.image_url || viewEmployee.avatar) ? 'transparent' : getColor(viewEmployee.name)">
+                        @if (viewEmployee.image_url || viewEmployee.avatar) {
+                        <img [src]="getImageUrl(viewEmployee.image_url || viewEmployee.avatar)" alt="avatar"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:24px;">
+                        } @else {
                         {{ getInitials(viewEmployee.name) }}
+                        }
                     </div>
                     <h4 class="profile-name">{{ viewEmployee.name }}</h4>
                     <div class="profile-role-badge">{{ viewEmployee.role }}</div>
@@ -185,6 +199,23 @@
         </div>
         <form [formGroup]="addEmployeeForm" (ngSubmit)="onSubmit()">
             <div class="modal-custom-body">
+                <!-- Image Upload Widget -->
+                <div class="img-upload-wrapper">
+                    <div class="img-upload-circle">
+                        @if (imagePreview) {
+                        <img [src]="imagePreview" alt="Preview" class="img-preview">
+                        } @else {
+                        <span class="img-placeholder-icon"><i class="bi bi-person-fill"></i></span>
+                        }
+                        <label for="empImageInput" class="img-upload-overlay" title="Change Photo">
+                            <i class="bi bi-camera-fill"></i>
+                        </label>
+                    </div>
+                    <input type="file" id="empImageInput" accept="image/*" class="d-none"
+                        (change)="onFileSelect($event)">
+                    <p class="img-upload-hint">{{ imagePreview ? 'Click camera to change' : 'Upload Photo' }}</p>
+                </div>
+
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <label class="form-label">Name</label>

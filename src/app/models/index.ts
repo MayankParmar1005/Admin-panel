@@ -31,6 +31,7 @@ export interface EmployeeModel {
     status: 'active' | 'inactive' | 'on-leave';
     avatar?: string;
     rating: number;
+    image_url: string
 }
 
 export interface ServiceModel {
@@ -109,7 +110,7 @@ export interface TodayOverviewModel {
     completed: number;
     cancelled: number;
     revenueCollected: number;
-  }
+}
 
 export interface RevenueData {
     month: string;

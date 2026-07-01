@@ -35,6 +35,9 @@ export class EmployeesComponent implements OnInit {
   viewEmployee: EmployeeModel | null = null;
   addEmployeeForm!: FormGroup;
 
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+
   showDeleteConfirm = signal(false);
   deleteEmployeeId: number | null = null;
 
@@ -69,6 +72,16 @@ export class EmployeesComponent implements OnInit {
   getColor(name: string): string { return this.avatarColors[name.charCodeAt(0) % this.avatarColors.length]; }
   getStars(rating: number): number[] { return Array(Math.floor(rating)).fill(0); }
 
+  getImageUrl(fileName: string | undefined): string | null {
+    if (!fileName) return null;
+    // If it's already a full URL or base64, return as is
+    if (fileName.startsWith('http') || fileName.startsWith('data:')) {
+      return fileName;
+    }
+    // Assuming backend serves images from the 'uploads' directory
+    return `http://localhost:3000/uploads/${fileName}`;
+  }
+
   // list all employee
   loadEmployees(): void {
     this.employeeService.getEmployees().subscribe({
@@ -101,6 +114,10 @@ export class EmployeesComponent implements OnInit {
       formattedDate = new Date(employee.join_date).toISOString().split('T')[0];
     }
 
+    // Show existing avatar as preview
+    this.imagePreview = this.getImageUrl(employee.image_url || employee.avatar) || null;
+    this.selectedFile = null;
+
     this.addEmployeeForm.patchValue({
       name: employee.name,
       email: employee.email,
@@ -113,11 +130,35 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
+  onFileSelect(event: any): void {
+    if (event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+      // Generate live preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(this.selectedFile!);
+    }
+  }
+
   onSubmit(): void {
     if (this.addEmployeeForm.valid) {
+      // Build FormData to support file upload
+      const formData = new FormData();
+      const values = this.addEmployeeForm.value;
+      Object.keys(values).forEach(key => {
+        if (values[key] !== null && values[key] !== undefined) {
+          formData.append(key, values[key]);
+        }
+      });
+      if (this.selectedFile) {
+        formData.append('employee_image', this.selectedFile);
+      }
+
       const apiCall = this.isEditMode
-        ? this.employeeService.updateEmployee(this.selectedEmployeeId, this.addEmployeeForm.value)
-        : this.employeeService.createEmployee(this.addEmployeeForm.value);
+        ? this.employeeService.updateEmployee(this.selectedEmployeeId, formData)
+        : this.employeeService.createEmployee(formData);
 
       const action = this.isEditMode ? 'updated' : 'added';
       apiCall.subscribe({
@@ -142,6 +183,8 @@ export class EmployeesComponent implements OnInit {
     this.isEditMode = false;
     this.selectedEmployeeId = null;
     this.viewEmployee = null;
+    this.selectedFile = null;
+    this.imagePreview = null;
     this.addEmployeeForm.reset({
       status: 'active',
       join_date: new Date().toISOString().split('T')[0],
