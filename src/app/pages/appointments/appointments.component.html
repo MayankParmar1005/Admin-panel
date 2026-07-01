@@ -50,7 +50,14 @@
 
 <!-- Table -->
 <div class="content-card">
-    @if (filtered().length > 0) {
+    @if (isLoading()) {
+    <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5 text-muted">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5>Loading appointments...</h5>
+    </div>
+    } @else if (filtered().length > 0) {
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
@@ -193,7 +200,7 @@
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar3"></i></span>
                             <input type="text" class="form-control border-start-0 ps-0"
                                 formControlName="appointment_date" placeholder="Select Date" bsDatepicker
-                                container="body"
+                                container="body" [minDate]="minDate" [maxDate]="maxDate"
                                 [bsConfig]="{ containerClass: 'theme-blue', dateInputFormat: 'DD-MM-YYYY', adaptivePosition: true }"
                                 [class.is-invalid]="addAppointmentForm.get('appointment_date')?.touched && addAppointmentForm.get('appointment_date')?.invalid">
                         </div>
@@ -202,9 +209,16 @@
                         <label class="form-label">Time</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-clock"></i></span>
-                            <input type="time" class="form-control border-start-0 ps-0"
-                                formControlName="appointment_time"
+                            <select class="form-select border-start-0 ps-0" formControlName="appointment_time"
                                 [class.is-invalid]="addAppointmentForm.get('appointment_time')?.touched && addAppointmentForm.get('appointment_time')?.invalid">
+                                <option value="" disabled>Select Time</option>
+                                @for (time of timeOptions; track time) {
+                                <option [value]="time" [disabled]="isTimeBooked(time)"
+                                    [class.text-muted]="isTimeBooked(time)">
+                                    {{ time }}{{ isTimeBooked(time) ? ' (Booked)' : '' }}
+                                </option>
+                                }
+                            </select>
                         </div>
                     </div>
                     <div class="col-12 col-md-6">

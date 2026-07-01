@@ -24,6 +24,14 @@
 </div>
 
 <div class="content-card">
+    @if (isLoading()) {
+    <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5 text-muted">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5>Loading services...</h5>
+    </div>
+    } @else {
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>
@@ -76,6 +84,7 @@
             lastText="&raquo;" (pageChanged)="applyFilter()" class="pagination-sm mb-0">
         </pagination>
     </div>
+    }
 </div>
 
 <!-- Add Service Modal -->

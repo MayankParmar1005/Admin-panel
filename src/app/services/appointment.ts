@@ -35,4 +35,9 @@ export class Appointment {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  // get booked timeslots
+  getBookedTimeslots(date: string) {
+    return this.http.get(`${this.apiUrl}/booked-slots?date=${date}`);
+  }
+
 }

@@ -27,6 +27,7 @@ export class CustomersComponent implements OnInit {
 
   all: CustomerModel[] = [];
   filtered = signal<CustomerModel[]>([]);
+  isLoading = signal<boolean>(true);
   searchQuery = '';
   filterStatus = '';
 
@@ -87,13 +88,16 @@ export class CustomersComponent implements OnInit {
 
   // list all employee
   loadCustomer(): void {
+    this.isLoading.set(true);
     this.customerService.getCustomers().subscribe({
       next: (res: any) => {
         this.all = res;
         this.filtered.set(res);
+        this.isLoading.set(false);
       },
       error: (err: any) => {
         console.error(err);
+        this.isLoading.set(false);
       }
     });
   }

@@ -25,6 +25,7 @@ export class ServicesComponent implements OnInit {
 
   all: ServiceModel[] = [];
   filtered = signal<ServiceModel[]>([]);
+  isLoading = signal<boolean>(true);
   filterCat = 'All';
   categories = ['Hair', 'Skin', 'Waxing', 'Nail', 'Massage', 'Special'];
   allCategories = ['All', ...this.categories];
@@ -74,13 +75,16 @@ export class ServicesComponent implements OnInit {
 
   // list all salon services
   loadServices(): void {
+    this.isLoading.set(true);
     this.salonService.getServices().subscribe({
       next: (res: any) => {
         this.all = res;
         this.filtered.set(res);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error(err);
+        this.isLoading.set(false);
       }
     });
   }

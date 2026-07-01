@@ -65,7 +65,14 @@
 </div>
 
 <div class="content-card">
-    @if (filtered().length > 0) {
+    @if (isLoading()) {
+    <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5 text-muted">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5>Loading customers...</h5>
+    </div>
+    } @else if (filtered().length > 0) {
     <div class="table-responsive">
         <table class="table table-hover">
             <thead>

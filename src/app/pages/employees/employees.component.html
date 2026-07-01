@@ -31,6 +31,14 @@
 </div>
 
 <!-- Employee Cards Grid -->
+@if (isLoading()) {
+<div class="d-flex flex-column justify-content-center align-items-center py-5 my-5 text-muted">
+    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5>Loading employees...</h5>
+</div>
+} @else {
 <div class="row g-3">
     @for (emp of filtered(); track emp.id) {
     <div class="col-12 col-sm-6 col-xl-4">
@@ -89,6 +97,7 @@
     </div>
     }
 </div>
+}
 
 <!-- View Profile Modal -->
 @if (showViewModal && viewEmployee) {

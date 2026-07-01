@@ -34,6 +34,7 @@ export class AppointmentsComponent implements OnInit {
 
   all: Appointment[] = [];
   filtered = signal<Appointment[]>([]);
+  isLoading = signal<boolean>(true);
   employees: EmployeeModel[] = [];
   services: ServiceModel[] = [];
 
@@ -44,6 +45,8 @@ export class AppointmentsComponent implements OnInit {
   showConfirmModal = false;
   showDeleteModal = false;
   appointmentToDelete: Appointment | null = null;
+  minDate: Date = new Date();
+  maxDate: Date = new Date();
 
   currentPage = signal(1);
   itemsPerPage = 10;
@@ -58,10 +61,36 @@ export class AppointmentsComponent implements OnInit {
 
   private avatarColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f97316', '#ef4444', '#06b6d4'];
 
+  timeOptions: string[] = [];
+  bookedTimeslots: string[] = [];
+  originalEditDate: string | null = null;
+  originalEditTime: string | null = null;
+
+
   ngOnInit(): void {
+    this.setDateLimits();
+    this.generateTimeOptions();
     this.loadAppointments();
     this.loadDropdownData();
     this.initForm();
+  }
+
+  generateTimeOptions(): void {
+    const startHour = 9;
+    const endHour = 21;
+    for (let h = startHour; h <= endHour; h++) {
+      const hour = h.toString().padStart(2, '0');
+      this.timeOptions.push(`${hour}:00`);
+    }
+  }
+
+  setDateLimits(): void {
+    this.minDate = new Date();
+    this.minDate.setHours(0, 0, 0, 0);
+
+    this.maxDate = new Date(this.minDate);
+    this.maxDate.setMonth(this.maxDate.getMonth() + 2);
+    this.maxDate.setHours(23, 59, 59, 999);
   }
 
   initForm(): void {
@@ -71,22 +100,62 @@ export class AppointmentsComponent implements OnInit {
       email: ['', [Validators.email]],
       staff_id: [null, Validators.required],
       service_id: [null, Validators.required],
-      appointment_date: [new Date().toISOString().split('T')[0], Validators.required],
+      appointment_date: [new Date(), Validators.required],
       appointment_time: ['10:00', Validators.required],
       total_amount: [0, [Validators.required, Validators.min(0)]],
       status: [{ value: 'scheduled', disabled: !this.isEditMode }]
     });
+
+    this.addAppointmentForm.get('appointment_date')?.valueChanges.subscribe(date => {
+      if (date) {
+        this.fetchBookedTimeslots(date);
+      }
+    });
+  }
+
+  fetchBookedTimeslots(date: Date): void {
+    const formattedDate = this.formatDateToYYYYMMDD(date);
+    this.appointmentService.getBookedTimeslots(formattedDate).subscribe({
+      next: (res: any) => {
+        if (res && res.bookedSlots) {
+          this.bookedTimeslots = res.bookedSlots.map((time: string) => time.substring(0, 5));
+          const currentTime = this.addAppointmentForm.get('appointment_time')?.value;
+          if (currentTime && this.isTimeBooked(currentTime)) {
+            this.addAppointmentForm.get('appointment_time')?.setValue('');
+          }
+        } else {
+          this.bookedTimeslots = [];
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching booked slots:', err);
+        this.bookedTimeslots = [];
+      }
+    });
+  }
+
+  isTimeBooked(time: string): boolean {
+    if (this.isEditMode) {
+      const selectedDate = this.addAppointmentForm.get('appointment_date')?.value;
+      const formattedDate = this.formatDateToYYYYMMDD(selectedDate);
+      if (formattedDate === this.originalEditDate && time === this.originalEditTime) {
+        return false;
+      }
+    }
+    return this.bookedTimeslots.includes(time);
   }
 
   loadAppointments(): void {
-
+    this.isLoading.set(true);
     this.appointmentService.getAppointments().subscribe({
       next: (res: any) => {
         this.all = res;
         this.filtered.set(res);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error(err);
+        this.isLoading.set(false);
       }
     });
 
@@ -118,7 +187,7 @@ export class AppointmentsComponent implements OnInit {
       // Updated check for undefined
       if (this.filterDate) {
         const selectedDateStr = this.formatDateToYYYYMMDD(this.filterDate);
-        const recordDate = a.appointment_date ? a.appointment_date.split('T')[0].trim() : '';
+        const recordDate = a.appointment_date ? a.appointment_date.trim() : '';
         matchesDate = recordDate === selectedDateStr;
       }
 
@@ -136,7 +205,7 @@ export class AppointmentsComponent implements OnInit {
     }
     // If it's already a string, try to slice the first 10 characters (YYYY-MM-DD)
     if (typeof date === 'string') {
-      return date.split('T')[0].trim();
+      return date.trim();
     }
     return '';
   }
@@ -166,12 +235,15 @@ export class AppointmentsComponent implements OnInit {
   openAddModal(): void {
     this.isEditMode = false;
     this.editId = null;
+    this.originalEditDate = null;
+    this.originalEditTime = null;
     this.addAppointmentForm.reset({
       status: 'scheduled',
-      appointment_date: new Date().toISOString().split('T')[0],
+      appointment_date: new Date(),
       appointment_time: '10:00',
       total_amount: 0
     });
+    this.fetchBookedTimeslots(new Date());
     this.addAppointmentForm.get('status')?.disable();
     this.addAppointmentForm.get('name')?.enable();
     this.addAppointmentForm.get('mobile')?.enable();
@@ -193,8 +265,11 @@ export class AppointmentsComponent implements OnInit {
         // Customer name is apt.customer_name in table but 'name' in form?
         // Let's check the res object. If it comes from backend, it might be customer_name.
 
-        const formattedDate = res.appointment_date ? res.appointment_date.split('T')[0] : '';
+        const formattedDate = res.appointment_date ? res.appointment_date : '';
         const formattedTime = res.appointment_time ? res.appointment_time.substring(0, 5) : '';
+
+        this.originalEditDate = formattedDate;
+        this.originalEditTime = formattedTime;
 
         this.addAppointmentForm.patchValue({
           name: res.customer_name || res.name,
@@ -202,11 +277,12 @@ export class AppointmentsComponent implements OnInit {
           email: res.customer_email,
           staff_id: res.staff_id,
           service_id: res.service_id,
-          appointment_date: formattedDate,
+          appointment_date: formattedDate ? new Date(formattedDate) : null,
           appointment_time: formattedTime,
           total_amount: res.total_amount,
           status: res.status
         });
+
         this.addAppointmentForm.get('status')?.enable();
         this.addAppointmentForm.get('name')?.disable();
         this.addAppointmentForm.get('mobile')?.disable();
@@ -226,7 +302,7 @@ export class AppointmentsComponent implements OnInit {
     this.editId = null;
     this.addAppointmentForm.reset({
       status: 'scheduled',
-      appointment_date: new Date().toISOString().split('T')[0],
+      appointment_date: new Date(),
       appointment_time: '10:00',
       total_amount: 0
     });
