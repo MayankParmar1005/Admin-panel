@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -8,8 +10,10 @@ export class SalonService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:3000/api/service';  // local environment
+  // private apiUrl = 'http://localhost:3000/api/service';  // local environment
   // private apiUrl = 'https://employeebackend-production.up.railway.app/api/service'; // live environment
+  
+  private apiUrl = `${environment.apiUrl}/service`;
 
   createService(data: any) {
     return this.http.post(this.apiUrl, data);

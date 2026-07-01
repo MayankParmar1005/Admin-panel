@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -9,7 +11,8 @@ export class Customer {
   private http = inject(HttpClient);
 
   // private apiUrl = 'http://localhost:3000/api/customers';  // local environment
-  private apiUrl = 'https://employeebackend-production.up.railway.app/api/customers'; // live environment
+
+  private apiUrl = `${environment.apiUrl}/customers`;
 
   getCustomers() {
     return this.http.get(this.apiUrl);
