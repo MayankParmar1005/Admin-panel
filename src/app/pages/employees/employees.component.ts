@@ -79,7 +79,8 @@ export class EmployeesComponent implements OnInit {
       return fileName;
     }
     // Assuming backend serves images from the 'uploads' directory
-    return `http://localhost:3000/uploads/${fileName}`;
+    // return `http://localhost:3000/uploads/${fileName}`;
+    return `https://employeebackend-production.up.railway.app//uploads/${fileName}`; // for live
   }
 
   // list all employee
